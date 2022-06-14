@@ -1,10 +1,33 @@
 console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
+// convert input coordinates to map boundary coordinates for Zillow url params
+const getMapBoundaries = (lat, long) => {
+  const coords = {};
+  const x = 0.002743;
+  const y = 0.002743;
+
+  coords.west = long - y;
+  coords.east = long + y;
+  coords.south = lat - x;
+  coords.north = lat + x;
+  return JSON.stringify(coords);
+};
+
+// 43.62377317475569, -85.23558318533732
+
+let urlParams = `{"pagination":{},"mapBounds":${getMapBoundaries(
+  "43.62377317475569",
+  "-85.23558318533732"
+)},"isMapVisible":true,"filterState":{"isAllHomes":{"value":true}},"mapZoom":18}&wants={"cat1":["listResults","mapResults"]}`;
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "hi") {
-    var url =
-      'https://www.zillow.com/search/GetSearchPageState.htm?searchQueryState={"pagination":{},"mapBounds":{"west":-86.77044868469238,"east":-86.58848762512207,"south":33.47362093003008,"north":33.60010802041049},"isMapVisible":true,"filterState":{"sortSelection":{"value":"days"},"isAllHomes":{"value":true}},"isListVisible":true,"mapZoom":12}&wants={"cat1":["listResults","mapResults"],"cat2":["total"],"regionResults":["total"]}&requestId=12';
+
+
+
+    var url = 'https://www.zillow.com/search/GetSearchPageState.htm?searchQueryState=' + urlParams;
+    console.log(urlParams)
     fetch(url)
       .then((response) => response.json())
       .then((zData) => {

@@ -85,7 +85,7 @@ export default function Album() {
                   />
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography gutterBottom variant="h5" component="h2">
-                      Heading
+                      {home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " ")}
                     </Typography>
                     <Typography>
                       This is a media card. You can use this section to describe the
@@ -93,7 +93,7 @@ export default function Album() {
                     </Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small">View</Button>
+                    <Button href={"https://www.zillow.com" + home.detailUrl} size="small" target="_blank">View </Button>
                     <Button size="small">Edit</Button>
                   </CardActions>
                 </Card>
