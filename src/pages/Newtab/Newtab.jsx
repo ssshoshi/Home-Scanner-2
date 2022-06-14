@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import CameraIcon from '@mui/icons-material/PhotoCamera';
@@ -35,15 +35,15 @@ const theme = createTheme();
 
 export default function Album() {
 
-    const [homes, setHomes] = React.useState([]);
-    React.useEffect(()=>{
-      chrome.runtime.sendMessage({message:"hi"}, async response => {
-        const homes = await response
-        setHomes(homes)
+  const [homes, setHomes] = useState([]);
+  useEffect(() => {
+    chrome.runtime.sendMessage({ message: "hi" }, async response => {
+      const homes = await response
+      setHomes(homes)
 
-      })
     })
-   console.log(homes)
+  }, [])
+  console.log(homes)
 
   return (
     <ThemeProvider theme={theme}>
