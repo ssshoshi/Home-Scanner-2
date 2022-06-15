@@ -29,21 +29,90 @@ function Copyright() {
   );
 }
 
+const fetchImage = async (url) => {
+  const fetchResult = fetch(url);
+  const response = await fetchResult;
+  const jsonData = await response.json();
+  return jsonData;
+};
+
+// calculate distance
+const getDistance = (lat1, lon1, lat2, lon2, unit) => {
+  if (lat1 == lat2 && lon1 == lon2) {
+    return 0;
+  } else {
+    let radlat1 = (Math.PI * lat1) / 180;
+    let radlat2 = (Math.PI * lat2) / 180;
+    let theta = lon1 - lon2;
+    let radtheta = (Math.PI * theta) / 180;
+    let dist =
+      Math.sin(radlat1) * Math.sin(radlat2) +
+      Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+    if (dist > 1) {
+      dist = 1;
+    }
+    dist = Math.acos(dist);
+    dist = (dist * 180) / Math.PI;
+    dist = dist * 60 * 1.1515;
+    if (unit == "K") {
+      dist = dist * 1.609344;
+    }
+    if (unit == "N") {
+      dist = dist * 0.8684;
+    }
+    return dist;
+  }
+};
+
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const theme = createTheme();
-
+let listingsArr = [];
 export default function Album() {
 
   const [homes, setHomes] = useState([]);
   useEffect(() => {
     chrome.runtime.sendMessage({ message: "hi" }, async response => {
-      const homes = await response
+      const homes = response
+      console.log(homes)
       setHomes(homes)
+      homes.map((home, index) => {
+        if (home.zpid || home.buildingId) {
+          home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
+            home.priceLabel = home.priceLabel ? home.priceLabel : "--",
+            home.area = home.area ? home.area : "--",
+            home.beds = home.beds ? home.beds : "--",
+            home.baths = home.baths ? home.baths : "--",
+            home.statusText = home.statusText ? home.statusText : "",
+            home.zillowImage = home.imgSrc.includes("staticmap") ? null : home.imgSrc,
+            home.satImage = home.imgSrc.includes("staticmap") ? home.imgSrc : null,
+            home.distance = Math.round(
+              getDistance(
+                43.62377317475569,
+                -85.23558318533732,
+                home.latLong.latitude,
+                home.latLong.longitude,
+                "K"
+              ) * 1000
+            ),
+            fetchImage("https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + encodeURI(home.addr)).then((response => response.json()).then((res) => {
+              for (i of res.autocomplete) {
+                if (i.area_type === "address") {
+                  home.realtorLink = i.mpr_id;
+                  home.street = i.line;
+                  break;
+                }
+              }
+            }))
+          console.log(home)
+        }
+      })
 
     })
+
   }, [])
-  console.log(homes)
+  console.log(listingsArr)
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -66,7 +135,7 @@ export default function Album() {
           }}
         >
         </Box>
-        <Container sx={{ py: 8 }} maxWidth="md">
+        <Container sx={{ py: 8 }} maxWidth="xl">
           {/* End hero unit */}
           <Grid container spacing={4}>
             {homes.map((home, index) => (
@@ -76,10 +145,10 @@ export default function Album() {
                 >
                   <CardMedia
                     component="img"
-                    sx={{
-                      // 16:9
-                      pt: '56.25%',
-                    }}
+                    // sx={{
+                    //   // 16:9
+                    //   pt: '56.25%',
+                    // }}
                     image={home.imgSrc}
                     alt="random"
                   />
