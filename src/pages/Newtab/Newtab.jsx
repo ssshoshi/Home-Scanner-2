@@ -12,6 +12,7 @@ import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Hcard from './Card'
+import axios from 'axios';
 
 function Copyright() {
   return (
@@ -54,47 +55,50 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
     return dist;
   }
 };
+let data;
+
+
+
+
+
 
 
 const theme = createTheme();
 
 export default function Album() {
-
   const [homes, setHomes] = useState([]);
 
   useEffect(() => {
-    chrome.runtime.sendMessage({ message: "hi" }, response => {
-
-      const homes = []
-      response.forEach((home) => {
-        if (home.zpid || home.buildingId) {
-          home.address = home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
-          home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
-            home.priceLabel = home.priceLabel ? home.priceLabel : "--",
-            home.area = home.area ? home.area : "--",
-            home.beds = home.beds ? home.beds : "--",
-            home.baths = home.baths ? home.baths : "--",
-            home.statusText = home.statusText ? home.statusText : "",
-            home.zillowImage = home.imgSrc.includes("staticmap") ? null : home.imgSrc,
-            home.satImage = home.imgSrc.includes("staticmap") ? home.imgSrc : null,
-            home.distance = Math.round(
-              getDistance(
-                43.62377317475569,
-                -85.23558318533732,
-                home.latLong.latitude,
-                home.latLong.longitude,
-                "K"
-              ) * 1000
-            )
-        }
-        homes.push(home)
+    async function fetchZillow() {
+      chrome.runtime.sendMessage({ message: "hi" }, (response) => {
+        response.map((home) => {
+          if (home.zpid || home.buildingId) {
+            home.address = home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
+              home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
+              home.priceLabel = home.priceLabel ? home.priceLabel : "--",
+              home.area = home.area ? home.area : "--",
+              home.beds = home.beds ? home.beds : "--",
+              home.baths = home.baths ? home.baths : "--",
+              home.statusText = home.statusText ? home.statusText : "",
+              home.zillowImage = home.imgSrc.includes("staticmap") ? null : home.imgSrc,
+              home.satImage = home.imgSrc.includes("staticmap") ? home.imgSrc : null,
+              home.distance = Math.round(
+                getDistance(
+                  home.latLong.lat,
+                  home.latLong.long,
+                  home.latLong.latitude,
+                  home.latLong.longitude,
+                  "K"
+                ) * 1000
+              )
+          }
+        })
+        setHomes(response)
       })
-      setHomes(homes)
-    })
+    }
+    fetchZillow()
+
   }, [])
-
-  console.log(homes)
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

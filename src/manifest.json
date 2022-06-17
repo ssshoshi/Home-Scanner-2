@@ -3,7 +3,15 @@
   "name": "Home Scanner",
   "description": "Scan homes in a radius",
   "options_page": "options.html",
-  "background": { "service_worker": "background.bundle.js" },
+  "background": {
+    "service_worker": "background.bundle.js"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://zillow.com/*"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon-34.png"
@@ -13,19 +21,35 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
-      "js": ["contentScript.bundle.js"],
-      "css": ["content.styles.css"]
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      "js": [
+        "contentScript.bundle.js"
+      ],
+      "css": [
+        "content.styles.css"
+      ]
     },
     {
-      "matches": ["*://*/newtab.html"],
-      "js": ["newtab.bundle.js"]
+      "matches": [
+        "*://*/newtab.html"
+      ],
+      "js": [
+        "newtab.bundle.js"
+      ]
     }
   ],
   "devtools_page": "devtools.html",
   "web_accessible_resources": [
     {
-      "resources": ["content.styles.css", "icon-128.png", "icon-34.png"],
+      "resources": [
+        "content.styles.css",
+        "icon-128.png",
+        "icon-34.png"
+      ],
       "matches": []
     }
   ]

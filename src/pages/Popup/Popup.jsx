@@ -24,15 +24,15 @@ const verifyCoords = (lat, lon) => {
 };
 
 const inputIsCoords = (latLong) => {
-  if(latLong.includes(",")) {
+  if (latLong.includes(",")) {
     let coords = latLong.split(/,/);
 
     let lat = coords[0].trim();
     let long = coords[1].trim();
 
     if (verifyCoords(lat, long)) {
-      chrome.runtime.sendMessage({message: "verified", lat:lat, long:long}, () =>{
-        chrome.tabs.create({ url: "/newtab.html" });
+      chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long }, () => {
+
       });
     } else {
       document.querySelector("#error").textContent = "Input must be coordinates e.g. 47.595152, -122.331639"
@@ -48,17 +48,17 @@ const Popup = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Typography variant="h4" color="blue" noWrap>
-          Home Scanner
+        Home Scanner
       </Typography>
       <Typography variant="h6" id="error" color="black" noWrap>
-          Search Coordinates
+        Search Coordinates
       </Typography>
-          <TextField id="standard-basic" label="Standard" variant="standard" />
-          <Button id="search" variant="contained" onClick={()=> {
-              let latLong = document.querySelector("#standard-basic").value;
-              console.log(latLong)
-              inputIsCoords(latLong)
-          }}>Search</Button>
+      <TextField id="standard-basic" label="Standard" variant="standard" />
+      <Button id="search" variant="contained" onClick={() => {
+        let latLong = document.querySelector("#standard-basic").value;
+        console.log(latLong)
+        inputIsCoords(latLong)
+      }}>Search</Button>
     </ThemeProvider>
   );
 };
