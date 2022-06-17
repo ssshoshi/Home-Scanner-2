@@ -81,7 +81,7 @@ const Hcard = ({home}) => {
         content.
       </Typography>
       <Typography>
-        {home.distance}
+        {home.distance}m
       </Typography>
     </CardContent>
     <CardActions>

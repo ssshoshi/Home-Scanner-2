@@ -57,21 +57,14 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
 };
 let data;
 
-
-
-
-
-
-
 const theme = createTheme();
 
 export default function Album() {
   const [homes, setHomes] = useState([]);
-
   useEffect(() => {
     async function fetchZillow() {
-      chrome.runtime.sendMessage({ message: "hi" }, (response) => {
-        response.map((home) => {
+      chrome.storage.local.get(["data", "lat", "long"], response => {
+        response.data.map((home) => {
           if (home.zpid || home.buildingId) {
             home.address = home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
               home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
@@ -84,21 +77,23 @@ export default function Album() {
               home.satImage = home.imgSrc.includes("staticmap") ? home.imgSrc : null,
               home.distance = Math.round(
                 getDistance(
-                  home.latLong.lat,
-                  home.latLong.long,
+                  response.lat,
+                  response.long,
                   home.latLong.latitude,
                   home.latLong.longitude,
                   "K"
                 ) * 1000
               )
+      
           }
         })
-        setHomes(response)
+        response.data.sort((a, b) => a.distance - b.distance);
+        setHomes(response.data)
       })
     }
     fetchZillow()
-
   }, [])
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

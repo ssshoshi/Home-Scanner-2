@@ -4,8 +4,15 @@ console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
 let data = []
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+let lat;
+let long;
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) { 
   if (request.message === "verified") {
+    console.log(request.lat)
+    lat = parseFloat(request.lat)
+    long = parseFloat(request.long)
+    chrome.storage.local.set({ lat: lat, long: long});
+
 
     // convert input coordinates to map boundary coordinates for Zillow url params
     const getMapBoundaries = (lat, long) => {
@@ -20,7 +27,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       return JSON.stringify(coords);
     };
 
-    // 43.62377317475569, -85.23558318533732
 
     let urlParams = `{"pagination":{},"mapBounds":${getMapBoundaries(
       parseFloat(request.lat),
@@ -35,6 +41,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       .then((zData) => {
         console.log(zData)
         data = zData.cat1.searchResults.mapResults
+        chrome.storage.local.set({ data: data });
         chrome.tabs.create({ url: "/newtab.html" })
       })
       .catch((error) => {
@@ -47,7 +54,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
   if (request.message === "hi") {
     console.log(data)
-    sendResponse(data)
+    sendResponse({data:data, lat:lat, long:long})
   }
 
 })
