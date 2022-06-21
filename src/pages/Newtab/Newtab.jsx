@@ -12,7 +12,9 @@ import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Hcard from './Card'
+import { Progress } from 'rsup-progress'
 import axios from 'axios';
+import { Progress } from 'rsup-progress'
 
 function Copyright() {
   return (
@@ -55,17 +57,17 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
     return dist;
   }
 };
-let data;
-
-
-
-
-
-
 
 const theme = createTheme();
 
 export default function Album() {
+
+  const progress = new Progress({
+    height: 5,
+    color: '#33eafd',
+  })
+
+
   const [homes, setHomes] = useState([]);
 
   useEffect(() => {
@@ -124,8 +126,9 @@ export default function Album() {
           {/* End hero unit */}
           <Grid container spacing={4}>
             {homes.map((home, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4}>
-                <Hcard home={home}></Hcard>
+
+              < Grid item key={index} xs={12} sm={6} md={4} >
+                <Hcard progress={this.progress} home={home}></Hcard>
               </Grid>
             ))}
           </Grid>
@@ -147,6 +150,6 @@ export default function Album() {
         <Copyright />
       </Box>
       {/* End footer */}
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }
