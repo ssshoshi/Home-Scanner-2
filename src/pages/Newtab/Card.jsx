@@ -6,16 +6,11 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
-import { Progress } from 'rsup-progress'
 
 
-const progress = new Progress({
-  height: 5,
-  color: '#33eafd',
-})
 
 
-const Hcard = ({ home }) => {
+const Hcard = ({ home, progress }) => {
 
 
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
@@ -34,19 +29,53 @@ const Hcard = ({ home }) => {
           setRealtorLink(i.mpr_id);
           home.realtorLink = realtorLink
           let realtorURL = `https://www.realtor.com/realestateandhomes-detail/M${i.mpr_id}`;
-          // console.log(realtorLink)
-          const resp = await axios.get(realtorURL)
-          Progress.promise(delay(300))
-          const respHtml = resp.data
+          try {
+            const response = await axios.get(realtorURL)
+            const respHtml = progress.promise(response.data, { min: 2000 })
+            const doc = new DOMParser().parseFromString(respHtml, 'text/html')
+            // console.log(doc)
+            if (doc.querySelector('meta[property="og:image"]')) {
+              console.log(doc.querySelector('meta[property="og:image"]').content)
+              setRealtorImage(doc.querySelector('meta[property="og:image"]').content)
+            }
+            break;
+          } catch (err) {
+            // if (err.response.status === 403) {
+            //   chrome.tabs.create({
+            //     url: 'https://www.realtor.com',
+            //     active: false
+            //   }, function (tab) {
+            //     chrome.windows.getCurrent(function (win) {
+            //       var width = 440;
+            //       var height = 280;
+            //       var left = ((screen.width / 2) - (width / 2)) + win.left;
+            //       var top = ((screen.height / 2) - (height / 2)) + win.top;
 
-          // console.log(respHtml)
-          const doc = new DOMParser().parseFromString(await respHtml, 'text/html')
-          // console.log(doc)
-          if (doc.querySelector('meta[property="og:image"]')) {
-            console.log(doc.querySelector('meta[property="og:image"]').content)
-            setRealtorImage(doc.querySelector('meta[property="og:image"]').content)
+            //       chrome.windows.create({
+            //         tabId: tab.id,
+            //         width: width,
+            //         height: height,
+            //         top: Math.round(top),
+            //         left: Math.round(left),
+            //         type: 'popup',
+            //       }, function (w) {
+            //         chrome.windows.onRemoved.addListener(function (wIndex) {
+            //           if (wIndex === w.id) {
+            //             console.log("hey");
+            //           }
+            //         });
+            //       }
+
+            //       );
+
+            //     });
+            //   });
+            //   break;
+            // }
+
           }
-          break;
+          // console.log(realtorLink)
+
         }
       }
     }

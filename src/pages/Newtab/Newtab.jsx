@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
-import CameraIcon from '@mui/icons-material/PhotoCamera';
+import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -14,7 +14,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Hcard from './Card'
 import { Progress } from 'rsup-progress'
 import axios from 'axios';
-import { Progress } from 'rsup-progress'
 
 function Copyright() {
   return (
@@ -68,6 +67,7 @@ export default function Album() {
   })
 
 
+
   const [homes, setHomes] = useState([]);
 
   useEffect(() => {
@@ -106,7 +106,7 @@ export default function Album() {
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
-          <CameraIcon sx={{ mr: 2 }} />
+          <MapsHomeWorkIcon sx={{ mr: 2 }} />
           <Typography variant="h6" color="inherit" noWrap>
             Home Scanner
           </Typography>
@@ -128,28 +128,12 @@ export default function Album() {
             {homes.map((home, index) => (
 
               < Grid item key={index} xs={12} sm={6} md={4} >
-                <Hcard progress={this.progress} home={home}></Hcard>
+                <Hcard progress={progress} home={home}></Hcard>
               </Grid>
             ))}
           </Grid>
         </Container>
       </main>
-      {/* Footer */}
-      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          align="center"
-          color="text.secondary"
-          component="p"
-        >
-          Something here to give the footer a purpose!
-        </Typography>
-        <Copyright />
-      </Box>
-      {/* End footer */}
     </ThemeProvider >
   );
 }
