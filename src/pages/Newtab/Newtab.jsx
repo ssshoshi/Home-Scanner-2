@@ -14,6 +14,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Hcard from './Card'
 import { Progress } from 'rsup-progress'
 import axios from 'axios';
+import { LazyLoadComponent } from 'react-lazy-load-image-component';
 
 function Copyright() {
   return (
@@ -126,7 +127,6 @@ export default function Album() {
           {/* End hero unit */}
           <Grid container spacing={4}>
             {homes.map((home, index) => (
-
               < Grid item key={index} xs={12} sm={6} md={4} >
                 <Hcard progress={progress} home={home}></Hcard>
               </Grid>
