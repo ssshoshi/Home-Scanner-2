@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
-import CameraIcon from '@mui/icons-material/PhotoCamera';
+import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -12,7 +12,9 @@ import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Hcard from './Card'
+import { Progress } from 'rsup-progress'
 import axios from 'axios';
+import { LazyLoadComponent } from 'react-lazy-load-image-component';
 
 function Copyright() {
   return (
@@ -55,11 +57,25 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
     return dist;
   }
 };
+<<<<<<< HEAD
 let data;
+=======
+>>>>>>> 4a7262e227be4210a531a0a650938125030b9bff
 
 const theme = createTheme();
 
 export default function Album() {
+<<<<<<< HEAD
+=======
+
+  const progress = new Progress({
+    height: 5,
+    color: '#33eafd',
+  })
+
+
+
+>>>>>>> 4a7262e227be4210a531a0a650938125030b9bff
   const [homes, setHomes] = useState([]);
   useEffect(() => {
     async function fetchZillow() {
@@ -99,7 +115,7 @@ export default function Album() {
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
-          <CameraIcon sx={{ mr: 2 }} />
+          <MapsHomeWorkIcon sx={{ mr: 2 }} />
           <Typography variant="h6" color="inherit" noWrap>
             Home Scanner
           </Typography>
@@ -119,29 +135,13 @@ export default function Album() {
           {/* End hero unit */}
           <Grid container spacing={4}>
             {homes.map((home, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4}>
-                <Hcard home={home}></Hcard>
+              < Grid item key={index} xs={12} sm={6} md={4} >
+                <Hcard progress={progress} home={home}></Hcard>
               </Grid>
             ))}
           </Grid>
         </Container>
       </main>
-      {/* Footer */}
-      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          align="center"
-          color="text.secondary"
-          component="p"
-        >
-          Something here to give the footer a purpose!
-        </Typography>
-        <Copyright />
-      </Box>
-      {/* End footer */}
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }
