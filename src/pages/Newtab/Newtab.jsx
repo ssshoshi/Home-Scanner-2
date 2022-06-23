@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Button from '@mui/material/Button';
 import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
@@ -10,24 +11,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
+
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Hcard from './Card'
-import { Progress } from 'rsup-progress'
-import axios from 'axios';
-import { LazyLoadComponent } from 'react-lazy-load-image-component';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import useSearch from "./SearchForm";
 
 
 // calculate distance
@@ -57,26 +44,16 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
     return dist;
   }
 };
-<<<<<<< HEAD
-let data;
-=======
->>>>>>> 4a7262e227be4210a531a0a650938125030b9bff
 
 const theme = createTheme();
 
+
 export default function Album() {
-<<<<<<< HEAD
-=======
-
-  const progress = new Progress({
-    height: 5,
-    color: '#33eafd',
-  })
-
-
-
->>>>>>> 4a7262e227be4210a531a0a650938125030b9bff
+  const [formValue, Form] = useSearch("");
   const [homes, setHomes] = useState([]);
+  const [q, setQ] = useState("");
+  const [searchParam] = useState(["address"]);
+
   useEffect(() => {
     async function fetchZillow() {
       chrome.storage.local.get(["data", "lat", "long"], response => {
@@ -110,15 +87,30 @@ export default function Album() {
     fetchZillow()
   }, [])
 
+  
+
+  function search(homes) {
+    return homes.filter((home) => {
+        return searchParam.some((newItem) => {
+            return (
+                home[newItem]
+                    .toLowerCase()
+                    .indexOf(formValue.toLowerCase()) > -1
+            );
+        });
+    });
+}
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="relative">
+      <AppBar position="fixed">
         <Toolbar>
           <MapsHomeWorkIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" color="inherit" noWrap>
+          <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
             Home Scanner
           </Typography>
+          {Form}
         </Toolbar>
       </AppBar>
       <main>
@@ -134,9 +126,9 @@ export default function Album() {
         <Container sx={{ py: 8 }} maxWidth="xl">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {homes.map((home, index) => (
-              < Grid item key={index} xs={12} sm={6} md={4} >
-                <Hcard progress={progress} home={home}></Hcard>
+            {search(homes).map((home, index) => (
+              < Grid item key={index + home.address} xs={12} sm={6} md={4} >
+                <Hcard  home={home}></Hcard>
               </Grid>
             ))}
           </Grid>

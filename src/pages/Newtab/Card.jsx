@@ -46,46 +46,6 @@ const Hcard = ({ home, progress }) => {
 
           }
         }
-<<<<<<< HEAD
-        fetchData()
-        fetchStreetview()
-
-    },[url, addrStreetview])
-    return(
-    <Card
-    sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-  >
-    <CardMedia
-      component="img"
-        onClick={()=> {
-                setClicked(!clicked)
-        }}
-           
-      image={ clicked ? streetviewImage : home.zillowImage ? home.zillowImage : realtorImage ? realtorImage : streetviewImage ? streetviewImage : home.satImage}
-      alt="random"
-    />
-    <CardContent sx={{ flexGrow: 1 }}>
-      <Typography gutterBottom variant="h5" component="h2">
-        {home.address}
-      </Typography>
-      <Typography>
-        This is a media card. You can use this section to describe the
-        content.
-      </Typography>
-      <Typography>
-        {home.distance}m
-      </Typography>
-    </CardContent>
-    <CardActions>
-      <Button href={"https://www.zillow.com" + home.detailUrl} size="small" target="_blank">View </Button>
-      <Button href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">View </Button>
-
-      <Button size="small">Edit</Button>
-
-    </CardActions>
-  </Card>
-    )
-=======
         // console.log(realtorLink)
 
       }
@@ -141,7 +101,6 @@ const Hcard = ({ home, progress }) => {
       </Card>
     </LazyLoadComponent>
   )
->>>>>>> 4a7262e227be4210a531a0a650938125030b9bff
 }
 
 export default Hcard
