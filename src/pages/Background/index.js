@@ -16,7 +16,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log(request.lat)
     lat = parseFloat(request.lat)
     long = parseFloat(request.long)
-    chrome.storage.local.set({ lat: lat, long: long });
 
 
     // convert input coordinates to map boundary coordinates for Zillow url params
@@ -46,8 +45,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       .then((zData) => {
         console.log(zData)
         data = zData.cat1.searchResults.mapResults
-        chrome.storage.local.set({ data: data });
-        // chrome.tabs.create({ url: "/newtab.html" })
+        chrome.storage.local.set({ data: data, lat: lat, long: long })
       })
       .catch((error) => {
         console.log(error)
@@ -56,10 +54,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     return true;
 
-  }
-  if (request.message === "hi") {
-    console.log(data)
-    sendResponse({ data: data, lat: lat, long: long })
   }
 
 })

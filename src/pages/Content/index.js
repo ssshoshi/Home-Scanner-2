@@ -4,6 +4,8 @@ console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 
 printLine("Using the 'printLine' function from the Print Module");
+let lat;
+let long;
 
 function callback(mutationsList, observer) {
     const menu = document.querySelector("#action-menu > ul")
@@ -13,19 +15,16 @@ function callback(mutationsList, observer) {
     );
 
     document.querySelector("[data-index='10']").addEventListener('click', () => {
-        console.log(document.querySelector("#action-menu > ul > li:nth-child(1)").textContent)
         let preSplitCoord = document.querySelector("#action-menu > ul > li:nth-child(1)").textContent
         let coord = preSplitCoord.split(/,/)
-        let lat = coord[0];
-        let long = coord[1];
+        lat = coord[0];
+        long = coord[1];
         console.log(coord)
-        chrome.storage.local.set({ data: coord }, function () {
-            if (chrome.runtime.error) {
-                console.log("Runtime error.");
-            }
+  
+    
             chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long });
             toggle()
-        });
+       
     })
 }
 
@@ -42,9 +41,9 @@ chrome.runtime.onMessage.addListener(function (msg, sender) {
     }
 })
 
-chrome.storage.local.onChanged.addListener((e) => {
+chrome.storage.onChanged.addListener((e) => {
     console.log(e.data.newValue)
-    chrome.runtime.sendMessage({ message: "verified", lat: e.data.newValue[0], long: e.data.newValue[1] });
+    chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long });
 }
 )
 
