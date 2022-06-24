@@ -24,6 +24,7 @@ function callback(mutationsList, observer) {
                 console.log("Runtime error.");
             }
             chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long });
+            toggle()
         });
     })
 }
@@ -31,3 +32,40 @@ function callback(mutationsList, observer) {
 const mutationObserver = new MutationObserver(callback)
 
 mutationObserver.observe(document.querySelector("#hovercard"), { attributes: true, subtree: true })
+
+console.log("side-panel script loaded");
+
+chrome.runtime.onMessage.addListener(function (msg, sender) {
+    if (msg == "toggle") {
+        console.log("message received");
+        toggle();
+    }
+})
+
+chrome.storage.local.onChanged.addListener((e) => {
+    console.log(e.data.newValue)
+    chrome.runtime.sendMessage({ message: "verified", lat: e.data.newValue[0], long: e.data.newValue[1] });
+}
+)
+
+var iframe = document.createElement('iframe');
+iframe.id = "homescannerframe"
+iframe.style.background = "green";
+iframe.style.height = "100%";
+iframe.style.width = "0px";
+iframe.style.position = "fixed";
+iframe.style.top = "0px";
+iframe.style.right = "0px";
+iframe.style.zIndex = "9000000000000000000";
+iframe.style.border = "0px";
+iframe.src = chrome.runtime.getURL("/newtab.html")
+
+document.body.appendChild(iframe);
+
+function toggle() {
+    if (iframe.style.width == "0px") {
+        iframe.style.width = "800px";
+    } else if (iframe.style.width = "800px") {
+    }
+
+}

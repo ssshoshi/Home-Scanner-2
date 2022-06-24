@@ -13,7 +13,6 @@
     "https://zillow.com/*"
   ],
   "action": {
-    "default_popup": "popup.html",
     "default_icon": "homescanner32.png"
   },
   "icons": {
@@ -48,9 +47,13 @@
       "resources": [
         "content.styles.css",
         "homescanner128.png",
-        "homescanner32.png"
+        "homescanner32.png",
+        "newtab.html"
       ],
-      "matches": []
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ]
     }
   ]
 }

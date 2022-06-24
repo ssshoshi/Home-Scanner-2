@@ -53,6 +53,7 @@ export default function Album() {
   const [homes, setHomes] = useState([]);
   const [q, setQ] = useState("");
   const [searchParam] = useState(["address"]);
+  const [data, setData] = useState([])
 
   useEffect(() => {
     async function fetchZillow() {
@@ -77,7 +78,7 @@ export default function Album() {
                   "K"
                 ) * 1000
               )
-      
+
           }
         })
         response.data.sort((a, b) => a.distance - b.distance);
@@ -87,19 +88,19 @@ export default function Album() {
     fetchZillow()
   }, [])
 
-  
+
 
   function search(homes) {
     return homes.filter((home) => {
-        return searchParam.some((newItem) => {
-            return (
-                home[newItem]
-                    .toLowerCase()
-                    .indexOf(formValue.toLowerCase()) > -1
-            );
-        });
+      return searchParam.some((newItem) => {
+        return (
+          home[newItem]
+            .toLowerCase()
+            .indexOf(formValue.toLowerCase()) > -1
+        );
+      });
     });
-}
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -128,7 +129,7 @@ export default function Album() {
           <Grid container spacing={4}>
             {search(homes).map((home, index) => (
               < Grid item key={index + home.address} xs={12} sm={6} md={4} >
-                <Hcard  home={home}></Hcard>
+                <Hcard home={home}></Hcard>
               </Grid>
             ))}
           </Grid>
