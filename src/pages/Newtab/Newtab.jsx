@@ -51,9 +51,7 @@ const theme = createTheme();
 export default function Album() {
   const [formValue, Form] = useSearch("");
   const [homes, setHomes] = useState([]);
-  const [q, setQ] = useState("");
   const [searchParam] = useState(["address"]);
-  const [data, setData] = useState([])
 
   useEffect(() => {
     async function fetchZillow() {
@@ -64,6 +62,7 @@ export default function Album() {
             home.address = home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
               home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
               home.priceLabel = home.priceLabel ? home.priceLabel : "--",
+              home.price = home.priceLabel ? home.priceLabel : "--",
               home.area = home.area ? home.area : "--",
               home.beds = home.beds ? home.beds : "--",
               home.baths = home.baths ? home.baths : "--",
@@ -88,8 +87,8 @@ export default function Album() {
     }
     chrome.storage.onChanged.addListener((e) => {
       fetchZillow()
-  }
-  )
+    }
+    )
   }, [])
 
 

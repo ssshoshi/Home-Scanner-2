@@ -6,13 +6,15 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
+import Grid from "@mui/material/Grid"
 
 
 
 
 
-const Hcard = ({ home, progress }) => {
+const Hcard = ({ home }) => {
 
 
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
@@ -21,7 +23,6 @@ const Hcard = ({ home, progress }) => {
   const [realtorImage, setRealtorImage] = useState("")
   const [streetviewImage, setStreetviewImage] = useState("")
   const [clicked, setClicked] = useState(false)
-  // console.log(home.zillowImage)
 
   async function fetchData() {
     const res = await axios.get(url)
@@ -37,7 +38,6 @@ const Hcard = ({ home, progress }) => {
             const doc = new DOMParser().parseFromString(respHtml, 'text/html')
             // console.log(doc)
             if (doc.querySelector('meta[property="og:image"]')) {
-
               console.log(home.address + " used")
               setRealtorImage(doc.querySelector('meta[property="og:image"]').content)
             }
@@ -46,8 +46,6 @@ const Hcard = ({ home, progress }) => {
 
           }
         }
-        // console.log(realtorLink)
-
       }
     }
   }
@@ -67,6 +65,32 @@ const Hcard = ({ home, progress }) => {
     }
   }
 
+  const toCamel = (string) => {
+    return string.toLowerCase().replace(/(?:_| |\b)(\w)/g, ($1) => {
+      return $1.toUpperCase().replace("_", " ");
+    });
+  }
+
+  let image;
+
+  if (clicked === true) {
+    if (streetviewImage) {
+      image = streetviewImage
+    } else {
+      setClicked(!clicked)
+    }
+  } else {
+    if (home.zillowImage) {
+      image = home.zillowImage
+    } else if (realtorImage) {
+      image = realtorImage
+    } else if (streetviewImage) {
+      image = streetviewImage
+    } else {
+      image = home.satImage
+    }
+  }
+
   return (
     <LazyLoadComponent beforeLoad={() => { fetchData(); fetchStreetview(); }}>
       <Card
@@ -78,20 +102,52 @@ const Hcard = ({ home, progress }) => {
             setClicked(!clicked)
           }}
 
-          image={clicked ? streetviewImage : home.zillowImage ? home.zillowImage : realtorImage ? realtorImage : streetviewImage ? streetviewImage : home.satImage}
+          image={image}
+          onError={e => {
+            e.target.src = home.satImage;
+          }}
           alt="random"
         />
+
         <CardContent sx={{ flexGrow: 1 }}>
-          <Typography gutterBottom variant="h5" component="h2">
-            {home.address}
-          </Typography>
-          <Typography>
-            This is a media card. You can use this section to describe the
-            content.
-          </Typography>
-          <Typography>
-            {home.distance}
-          </Typography>
+          <Grid container rowSpacing={0} columnSpacing={2}>
+            <Grid item xs={12}>
+              <Typography gutterBottom variant="h5" component="h2">
+                <Link href={"https://zillow.com/" + home.detailUrl} target="_blank" rel="noreferrer" underline="hover">{home.address}</Link>
+              </Typography>
+            </Grid>
+            <Grid item xs={6} justifyContent="flex-start">
+              <Typography variant="body1">
+                <strong>{home.price}</strong> Assessed
+              </Typography>
+            </Grid>
+            <Grid item xs={6} justifyContent="flex-end">
+              <Typography variant="body1" align="right">
+                <strong>{home.beds}</strong> beds
+              </Typography>
+            </Grid>
+            <Grid item xs={6} justifyContent="flex-start">
+              <Typography variant="body1">
+                <strong>{home.distance}</strong>m away
+              </Typography>
+            </Grid>
+            <Grid item xs={6} justifyContent="flex-end">
+              <Typography variant="body1" align="right">
+                <strong>{home.baths}</strong> baths
+              </Typography>
+            </Grid>
+            <Grid item xs={6} justifyContent="flex-start">
+              <Typography variant="body1">
+                {toCamel(home.homeType)}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={6} justifyContent="flex-end">
+              <Typography variant="body1" align="right">
+                <strong>{home.area}</strong> sqft
+              </Typography>
+            </Grid>
+          </Grid>
         </CardContent>
         <CardActions>
           <Button href={"https://www.zillow.com" + home.detailUrl} size="small" target="_blank">View </Button>
