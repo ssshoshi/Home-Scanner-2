@@ -43,61 +43,23 @@ chrome.runtime.onMessage.addListener(function (msg, sender) {
     }
 })
 
-const MyComponent = styled('div')({
-    color: 'darkslategray',
-    backgroundColor: 'aliceblue',
-    padding: 8,
-    borderRadius: 4,
-});
-
-export default function BasicUsage() {
-    return <MyComponent>Styled div</MyComponent>;
-}
 
 const iframe = document.createElement('iframe');
+const panelBtn = document.createElement('div');
 
-const panelBtn = styled('div')({
-    width: '20px',
-    right: '0px',
-    left: 'calc(100vw - 823px) !important',
-    top: "calc(50% - 24px)",
-    width: '23px',
-    height: '48px',
-    borderRight: '1px solid #dadce0',
-    borderRadius: '8px 0 0 8px',
-    position: 'absolute',
-    zIndex: 99999,
-    backgroundColor: 'white 7px center / 7px 10px no - repeat'
 
-})
-
-// element.style {
-//     left: calc(100vw - 823px)!important;
-//     top: calc(50 % - 24px);
-//     border: 0;
-//     box - shadow: 0 1px 2px rgb(60 64 67 / 30 %), 0 2px 6px 2px rgb(60 64 67 / 15 %);
-//     width: 23px;
-//     height: 48px;
-//     cursor: pointer;
-//     border - left: 1px solid #dadce0;
-//     border - radius: 8px 0 0 8px;
-//     background: white 7px center / 7px 10px no - repeat;
-//     z - index: 9999999;
-//     position: absolute;
-// }
-
-// panelBtn.style.width = "20px"
-// panelBtn.style.right = "0px"
-// panelBtn.style.left = "calc(100vw - 823px) !important"
-// panelBtn.style.top = "calc(50% - 24px)"
-// panelBtn.style.width = "23px"
-// panelBtn.style.height = "48px"
-// panelBtn.style.borderRight = "1px solid #dadce0"
-// panelBtn.style.borderRadius = "8px 0 0 8px"
-// panelBtn.style.position = "absolute"
-// panelBtn.style.zIndex = "9999999"
-// panelBtn.style.background = "white 7px center/7px 10px no-repeat"
-// panelBtn.onclick = function () { toggle() }
+panelBtn.style.width = "20px"
+panelBtn.style.right = "0px"
+panelBtn.style.left = "calc(100vw - 823px) !important"
+panelBtn.style.top = "calc(50% - 24px)"
+panelBtn.style.width = "23px"
+panelBtn.style.height = "48px"
+panelBtn.style.borderRight = "1px solid #dadce0"
+panelBtn.style.borderRadius = "8px 0 0 8px"
+panelBtn.style.position = "absolute"
+panelBtn.style.zIndex = "9999999"
+panelBtn.style.background = "white 7px center/7px 10px no-repeat"
+panelBtn.onclick = function () { toggle() }
 
 
 iframe.id = "homescannerframe"
@@ -111,7 +73,7 @@ iframe.style.border = "0px";
 iframe.src = chrome.runtime.getURL("/newtab.html")
 
 document.body.appendChild(iframe);
-document.body.appendChild(panelBtn);
+document.body.appendChild(PanelBtn);
 
 const toggle = () => {
     if (iframe.style.width == "0px") {

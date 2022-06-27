@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
-import Button from '@mui/material/Button';
 import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import Link from '@mui/material/Link';
+
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Hcard from './Card'
@@ -61,7 +58,6 @@ export default function Album() {
           if (home.zpid || home.buildingId) {
             home.address = home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
               home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
-              home.priceLabel = home.priceLabel ? home.priceLabel : "--",
               home.price = home.priceLabel ? home.priceLabel : "--",
               home.area = home.area ? home.area : "--",
               home.beds = home.beds ? home.beds : "--",

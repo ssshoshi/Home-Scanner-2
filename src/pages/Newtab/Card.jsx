@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import Grid from "@mui/material/Grid"
 
@@ -108,6 +109,11 @@ const Hcard = ({ home }) => {
           }}
           alt="random"
         />
+        <ButtonGroup variant="contained" aria-label="outlined primary button group" sx={{ display: 'inline' }}>
+          <Button>One</Button>
+          <Button>Two</Button>
+          <Button>Three</Button>
+        </ButtonGroup>
 
         <CardContent sx={{ flexGrow: 1 }}>
           <Grid container rowSpacing={0} columnSpacing={2}>
