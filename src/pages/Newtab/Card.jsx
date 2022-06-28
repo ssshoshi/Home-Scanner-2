@@ -10,6 +10,8 @@ import Link from '@mui/material/Link';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import Grid from "@mui/material/Grid"
+import { hasOnlyExpressionInitializer } from "typescript";
+import Box from "@mui/material/Box"
 
 
 
@@ -97,23 +99,29 @@ const Hcard = ({ home }) => {
       <Card
         sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
-        <CardMedia
-          component="img"
-          onClick={() => {
-            setClicked(!clicked)
-          }}
 
-          image={image}
-          onError={e => {
-            e.target.src = home.satImage;
-          }}
-          alt="random"
-        />
-        <ButtonGroup variant="contained" aria-label="outlined primary button group" sx={{ display: 'inline' }}>
-          <Button>One</Button>
-          <Button>Two</Button>
-          <Button>Three</Button>
-        </ButtonGroup>
+        <div style={{ position: "relative" }}>
+          <CardMedia
+            component="img"
+            onClick={() => {
+              setClicked(!clicked)
+            }}
+
+            image={image}
+            onError={e => {
+              e.target.src = home.satImage;
+            }}
+            alt="random"
+          />
+          <div style={{ position: "absolute", bottom: 10 }}>
+            {
+              realtorLink ? <Button sx={{ backgroundColor: 'red', ml: 1, mr: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button> : ""
+            }
+            <Button sx={{ backgroundColor: 'lightgray' }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
+          </div>
+        </div>
+
+
 
         <CardContent sx={{ flexGrow: 1 }}>
           <Grid container rowSpacing={0} columnSpacing={2}>
@@ -129,17 +137,7 @@ const Hcard = ({ home }) => {
             </Grid>
             <Grid item xs={6} justifyContent="flex-end">
               <Typography variant="body1" align="right">
-                <strong>{home.beds}</strong> beds
-              </Typography>
-            </Grid>
-            <Grid item xs={6} justifyContent="flex-start">
-              <Typography variant="body1">
-                <strong>{home.distance}</strong>m away
-              </Typography>
-            </Grid>
-            <Grid item xs={6} justifyContent="flex-end">
-              <Typography variant="body1" align="right">
-                <strong>{home.baths}</strong> baths
+                <strong>{home.beds}</strong> bd <strong>{home.baths}</strong> ba
               </Typography>
             </Grid>
             <Grid item xs={6} justifyContent="flex-start">
@@ -147,19 +145,24 @@ const Hcard = ({ home }) => {
                 {toCamel(home.homeType)}
               </Typography>
             </Grid>
-
             <Grid item xs={6} justifyContent="flex-end">
               <Typography variant="body1" align="right">
                 <strong>{home.area}</strong> sqft
               </Typography>
             </Grid>
+            <Grid item xs={6} justifyContent="flex-start">
+              <Typography variant="body1">
+                <strong>{home.distance}</strong>m away
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="body1" align="right">
+                {home.statusText ? home.statusText : ""}
+              </Typography>
+            </Grid>
+
           </Grid>
         </CardContent>
-        <CardActions>
-          <Button href={"https://www.zillow.com" + home.detailUrl} size="small" target="_blank">View </Button>
-          <Button href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">View </Button>
-          <Button size="small">Edit</Button>
-        </CardActions>
       </Card>
     </LazyLoadComponent>
   )
