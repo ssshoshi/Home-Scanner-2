@@ -73,7 +73,7 @@ iframe.style.border = "0px";
 iframe.src = chrome.runtime.getURL("/newtab.html")
 
 document.body.appendChild(iframe);
-document.body.appendChild(PanelBtn);
+document.body.appendChild(panelBtn);
 
 const toggle = () => {
     if (iframe.style.width == "0px") {

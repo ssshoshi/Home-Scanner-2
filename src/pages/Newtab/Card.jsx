@@ -57,13 +57,15 @@ const Hcard = ({ home }) => {
 
     const response = await axios.get(addrStreetview)
     if (response.data.status === "OK") {
+      home.pano_id = response.data.pano_id
       setStreetviewImage(`https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
         home.address
       )}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`)
     } else if (response.data.status !== "OK") {
       const response2 = await axios.get(home.streetViewMetadataURL)
       if (response2.data.status === "OK") {
-        setStreetviewImage(`https://www.google.com/maps/@?api=1&map_action=pano&pano=F8XGYxNOWhYgsjU-cUytow&viewpoint=${home.latLong.latitude},${home.latLong.longitude}`)
+        home.pano_id = response.data.pano_id
+        setStreetviewImage(`https://maps.googleapis.com/maps/api/streetview?location=${home.latLong.latitude},${home.latLong.longitude}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`)
       }
     }
   }
@@ -114,10 +116,10 @@ const Hcard = ({ home }) => {
             alt="random"
           />
           <div style={{ position: "absolute", bottom: 10 }}>
-            {
-              realtorLink ? <Button sx={{ backgroundColor: 'red', ml: 1, mr: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button> : ""
-            }
-            <Button sx={{ backgroundColor: 'lightgray' }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
+
+            <Button sx={{ backgroundColor: '#1976d2', ml: 1, mr: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button>
+            <Button sx={{ backgroundColor: '#1976d2', mr: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
+            <Button sx={{ backgroundColor: '#1976d2' }} variant="contained" href={`https://www.google.com/maps/@?api=1&map_action=pano&pano=${home.pano_id}&viewpoint=${home.latLong.latitude},${home.latLong.longitude}`} target="_blank" size="small">Streetview</Button>
           </div>
         </div>
 
