@@ -12,6 +12,11 @@ chrome.action.onClicked.addListener(tab => {
 
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.source === "vrapi") {
+    console.log(request.source)
+    chrome.tabs.create({ url: 'newtab.html?source=vrapi' });
+  }
+  console.log(request)
   if (request.message === "verified") {
     console.log(request.lat)
     lat = parseFloat(request.lat)
@@ -46,15 +51,16 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         console.log(zData)
         data = zData.cat1.searchResults.mapResults
         chrome.storage.local.set({ data: data, lat: lat, long: long })
+
       })
       .catch((error) => {
         console.log(error)
       });
 
 
-    return true;
-
   }
+
+  return true;
 
 })
 

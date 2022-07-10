@@ -129,7 +129,7 @@ const Hcard = ({ home }) => {
           <Grid container rowSpacing={0} columnSpacing={2}>
             <Grid item xs={12}>
               <Typography gutterBottom variant="h5" component="h2">
-                <Link href={"https://zillow.com/" + home.detailUrl} target="_blank" rel="noreferrer" underline="hover">{home.address}</Link>
+                <Link href={"https://zillow.com" + home.detailUrl} target="_blank" rel="noreferrer" underline="hover">{home.address}</Link>
               </Typography>
             </Grid>
             <Grid item xs={6} justifyContent="flex-start">
