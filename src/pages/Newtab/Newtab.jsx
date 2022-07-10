@@ -61,6 +61,14 @@ export default function Album() {
     if (value === "vrapi") {
       fetchZillow()
 
+    } else if (value === "google") {
+      chrome.storage.onChanged.addListener((e) => {
+        chrome.storage.local.get(["source"], response => {
+          if (response.source === "google") {
+            fetchZillow()
+          }
+        })
+      })
     }
 
     async function fetchZillow() {
@@ -93,10 +101,8 @@ export default function Album() {
         setHomes(response.data)
       })
     }
-    chrome.storage.onChanged.addListener((e) => {
-      fetchZillow()
-    }
-    )
+
+
   }, [])
 
 

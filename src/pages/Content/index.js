@@ -25,7 +25,7 @@ if (window.location.hostname === "www.google.com") {
             long = coord[1];
             console.log(coord)
 
-            chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long });
+            chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long, source: "google" });
             iframe.style.width = "800px";
             panelBtn.style.right = "800px";
 
@@ -72,7 +72,7 @@ if (window.location.hostname === "www.google.com") {
     iframe.style.right = "0px";
     iframe.style.zIndex = "9000000000000000000";
     iframe.style.border = "0px";
-    iframe.src = chrome.runtime.getURL("/newtab.html")
+    iframe.src = chrome.runtime.getURL("/newtab.html?source=google")
 
     document.body.appendChild(iframe);
     document.body.appendChild(panelBtn);

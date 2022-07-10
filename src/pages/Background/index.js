@@ -50,7 +50,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       .then((zData) => {
         console.log(zData)
         data = zData.cat1.searchResults.mapResults
-        chrome.storage.local.set({ data: data, lat: lat, long: long })
+        if (request.source === "vrapi") {
+          chrome.storage.local.set({ data: data, lat: lat, long: long, source: "vrapi" })
+        } else if (request.source === "google") {
+          chrome.storage.local.set({ data: data, lat: lat, long: long, source: "google" })
+        }
 
       })
       .catch((error) => {
