@@ -6,12 +6,13 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-
-
+import { LazyLoadImage, trackWindowScroll } from 'react-lazy-load-image-component';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Hcard from './Card'
+import Homes from "./Homes";
 import useSearch from "./SearchForm";
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import useType from "./Type"
+
 
 
 // calculate distance
@@ -47,6 +48,7 @@ const theme = createTheme();
 
 export default function Album() {
   const [formValue, Form] = useSearch("");
+  const [typeValue, TypeForm] = useType("All")
   const [homes, setHomes] = useState([]);
   const [searchParam] = useState(["address"]);
 
@@ -76,15 +78,15 @@ export default function Album() {
         console.log(response.data)
         response.data.map((home) => {
           if (home.zpid || home.buildingId) {
-            home.address = home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
+            home.address = home.address === undefined ? "--" : home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
               home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
               home.price = home.priceLabel ? home.priceLabel : "--",
               home.area = home.area ? home.area : "--",
               home.beds = home.beds ? home.beds : "--",
               home.baths = home.baths ? home.baths : "--",
               home.statusText = home.statusText ? home.statusText : "",
-              home.zillowImage = home.imgSrc.includes("staticmap") ? null : home.imgSrc,
-              home.satImage = home.imgSrc.includes("staticmap") ? home.imgSrc : null,
+              home.zillowImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? null : home.imgSrc,
+              home.satImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? home.imgSrc : null,
               home.distance = Math.round(
                 getDistance(
                   response.lat,
@@ -105,20 +107,6 @@ export default function Album() {
 
   }, [])
 
-
-
-  function search(homes) {
-    return homes.filter((home) => {
-      return searchParam.some((newItem) => {
-        return (
-          home[newItem]
-            .toLowerCase()
-            .indexOf(formValue.toLowerCase()) > -1
-        );
-      });
-    });
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -128,6 +116,7 @@ export default function Album() {
           <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
             Home Scanner
           </Typography>
+          {TypeForm}
           {Form}
         </Toolbar>
       </AppBar>
@@ -141,16 +130,8 @@ export default function Album() {
           }}
         >
         </Box>
-        <Container sx={{ py: 8 }} maxWidth="xl">
-          {/* End hero unit */}
-          <Grid container spacing={4}>
-            {search(homes).map((home, index) => (
-              < Grid item key={index + home.address} xs={12} sm={6} md={4} >
-                <Hcard home={home}></Hcard>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
+
+        <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes}></Homes>
       </main>
     </ThemeProvider >
   );

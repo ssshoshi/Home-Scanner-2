@@ -97,7 +97,7 @@ const Hcard = ({ home }) => {
   }
 
   return (
-    <LazyLoadComponent beforeLoad={() => { fetchData(); fetchStreetview(); }}>
+    <LazyLoadComponent threshold={300} beforeLoad={() => { fetchData(); fetchStreetview(); }}>
       <Card
         sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >

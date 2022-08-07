@@ -1,6 +1,7 @@
 import { printLine } from './modules/print';
 import * as React from 'react';
 import { styled } from '@mui/system';
+import { createLogicalAnd } from 'typescript';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -129,63 +130,87 @@ if (
 
 
 
-const coord = document.querySelector("ng-map").getAttribute("center").split(/,/);
-const map = document.querySelector(".map-container");
-const title = document.querySelectorAll(".md-headline")[2];
-const searchTerm = encodeURIComponent(title.innerText);
-const list = document.querySelectorAll(
-    '[ng-if="vm.listing.duplicate_listings.length"]'
-)[0];
-const dupes = list === undefined ? 0 : list.getElementsByTagName("A");
 
 
+//hostcompliance
+if (window.location.hostname === "www.hostcompliance.com" || "safe-ca.hostcompliance.com") {
+    setTimeout(() => {
+        const coord = document.querySelector("ng-map").getAttribute("center").split(/,/);
+        const map = document.querySelector(".map-container");
+        const title = document.querySelectorAll(".md-headline")[2];
+        const searchTerm = encodeURIComponent(title.innerText);
+        const list = document.querySelectorAll(
+            '[ng-if="vm.listing.duplicate_listings.length"]'
+        )[0];
+        const dupes = list === undefined ? 0 : list.getElementsByTagName("A");
 
-for (let i = 0; i < dupes.length; i++) {
-    if (dupes != 0) {
+        document.querySelectorAll("[ng-src]").forEach(img => {
+            let imgUrl = img.src
+            if (imgUrl.includes("muscache.com/")) {
+                if (imgUrl.includes("muscache.com/im") === false) {
+                    console.log(imgUrl.includes("muscache.com/im"))
+                    let urlArr = img.src.split(/(muscache.com)/);
+                    let newUrl = urlArr[0] + urlArr[1] + "/im" + urlArr[2];
+                    img.src = newUrl;
+                }
+            }
+        })
+
+        for (let i = 0; i < dupes.length; i++) {
+            if (dupes != 0) {
+                map.insertAdjacentHTML(
+                    "beforebegin",
+                    `
+            <a class="md-no-style md-button md-ink-ripple" style="${style} font-size: 12px" href=${dupes[i].innerText} target="_blank">${dupes[i].innerText}</a>
+            
+            `
+                );
+            }
+        }
         map.insertAdjacentHTML(
             "beforebegin",
             `
-<a class="md-no-style md-button md-ink-ripple" style="${style} font-size: 12px" href=${dupes[i].innerText} target="_blank">${dupes[i].innerText}</a>
-
-`
+            
+            <hr>
+            
+            <a class="md-no-style md-button md-ink-ripple" style="${style}" href=${google}${coord} target="_blank">Google</a><br>
+            <a class="md-no-style md-button md-ink-ripple" style="${style}" href="${bing}${coord}&style=h&lvl=18" target="_blank">Bing</a>
+            <a class="md-no-style md-button md-ink-ripple hscan" style="${style}">Home Scanner</a>
+            `
         );
-    }
-}
-map.insertAdjacentHTML(
-    "beforebegin",
-    `
 
-<hr>
+        title.insertAdjacentHTML(
+            "beforeend",
+            `
+            
+            <a class="md-icon-button md-button md-ink-ripple" target="_blank" href='http://googl.com/#q="${searchTerm}"'>
+            <md-icon md-font-icon="fa fa-search" class="ng-scope md-font FontAwesome fa fa-search" role="img" aria-label="fa fa-search"></md-icon>
+            
+            `
+        );
 
-<a class="md-no-style md-button md-ink-ripple" style="${style}" href=${google}${coord} target="_blank">Google</a><br>
-<a class="md-no-style md-button md-ink-ripple" style="${style}" href="${bing}${coord}&style=h&lvl=18" target="_blank">Bing</a>
-<a class="md-no-style md-button md-ink-ripple hscan" style="${style}">Home Scanner</a>
-`
-);
+        document.querySelector(".hscan").onclick = function () {
+            let lat1 = coord[0];
+            let long1 = coord[1];
+            if (chrome.runtime.error) {
+                console.log("Runtime error.");
+            }
+            console.log(lat1, long1)
 
-title.insertAdjacentHTML(
-    "beforeend",
-    `
+            chrome.runtime.sendMessage({ message: "verified", lat: lat1, long: long1, source: "vrapi" })
+        };
 
-<a class="md-icon-button md-button md-ink-ripple" target="_blank" href='http://googl.com/#q="${searchTerm}"'>
-<md-icon md-font-icon="fa fa-search" class="ng-scope md-font FontAwesome fa fa-search" role="img" aria-label="fa fa-search"></md-icon>
 
-`
-);
 
-document.querySelector(".hscan").onclick = function () {
-    let lat1 = coord[0];
-    let long1 = coord[1];
-    if (chrome.runtime.error) {
-        console.log("Runtime error.");
-    }
-    console.log(lat1, long1)
-    chrome.runtime.sendMessage({ message: "verified", lat: lat1, long: long1, source: "vrapi" })
-};
+
+    }, 2000)
+
+
+
 
     //homescanner button on
 
-
+}
 
 
 
