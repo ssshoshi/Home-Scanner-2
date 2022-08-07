@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useTheme } from '@mui/material/styles';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
 import { styled, alpha } from '@mui/material/styles';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
@@ -10,6 +10,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 const Type = styled(FormControl)(({ theme }) => ({
     position: 'relative',
+
     borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.common.white, 0.15),
     '&:hover': {
@@ -25,8 +26,9 @@ const Type = styled(FormControl)(({ theme }) => ({
 
 const StyledSelect = styled(Select)(({ theme }) => ({
     color: 'inherit',
-    '& .MuiInputBase-input': {
+    '& 	.MuiInput-input': {
         placeholder: "Type",
+        border: '0',
         padding: theme.spacing(1, 1, 1, 0),
         // vertical padding + font size from searchIcon
         paddingLeft: `calc(1em + ${theme.spacing(4)})`,
@@ -49,15 +51,23 @@ const IconWrapper = styled('div')(({ theme }) => ({
 }));
 
 const TypeComponent = ({ setState, state }) => (
-    <Type key="type1">
+    <Type
+
+        variant="standard"
+        inputProps={{
+            disableUnderline: true
+        }}>
         <IconWrapper>
             <ArrowDropDownIcon />
         </IconWrapper>
         <StyledSelect
+            disableUnderline
             value={state}
             onChange={(e) => setState(e.target.value)}
             placeholder="Type..."
-            inputProps={{ 'aria-label': 'type' }}
+            inputProps={{
+                'aria-label': 'type',
+            }}
         >
             <MenuItem value={'All'}>All</MenuItem>
             <MenuItem value={'SINGLE_FAMILY'}>House</MenuItem>
@@ -67,7 +77,7 @@ const TypeComponent = ({ setState, state }) => (
 );
 
 
-export default function useSearch(defaultState) {
+export default function useType(defaultState) {
     const [state, setState] = useState(defaultState);
 
     return [

@@ -43,7 +43,25 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
   }
 };
 
-const theme = createTheme();
+const theme = createTheme({
+  overrides: {
+    MuiOutlinedInput: {
+      root: {
+        "& $notchedOutline": {
+          borderWidth: 0
+        },
+        "&:hover $notchedOutline": {
+          borderWidth: 0
+        },
+        "&$focused $notchedOutline": {
+          borderWidth: 0
+        }
+      },
+      focused: {},
+      notchedOutline: {}
+    }
+  }
+});
 
 
 export default function Album() {
