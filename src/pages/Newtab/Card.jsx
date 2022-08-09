@@ -117,8 +117,8 @@ const Hcard = ({ home }) => {
           />
           <div style={{ position: "absolute", bottom: 10 }}>
 
-            <Button sx={{ backgroundColor: '#1976d2', ml: 1, mr: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button>
-            <Button sx={{ backgroundColor: '#1976d2', mr: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
+            {home.realtorLink ? <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button> : ""}
+            <Button sx={{ backgroundColor: '#1976d2', mr: 1, ml: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
             <Button sx={{ backgroundColor: '#1976d2' }} variant="contained" href={`https://www.google.com/maps/@?api=1&map_action=pano&pano=${home.pano_id}&viewpoint=${home.latLong.latitude},${home.latLong.longitude}`} target="_blank" size="small">Streetview</Button>
           </div>
         </div>
@@ -144,7 +144,7 @@ const Hcard = ({ home }) => {
             </Grid>
             <Grid item xs={6} justifyContent="flex-start">
               <Typography variant="body1">
-                {toCamel(home.homeType)}
+                {home.homeType === undefined ? "--" : toCamel(home.homeType)}
               </Typography>
             </Grid>
             <Grid item xs={6} justifyContent="flex-end">

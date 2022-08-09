@@ -57,10 +57,11 @@ const TypeComponent = ({ setState, state }) => (
         inputProps={{
             disableUnderline: true
         }}>
-        <IconWrapper>
+        {/* <IconWrapper>
             <ArrowDropDownIcon />
-        </IconWrapper>
+        </IconWrapper> */}
         <StyledSelect
+            sx={{ '.MuiSelect-icon': { color: 'white' } }}
             disableUnderline
             value={state}
             onChange={(e) => setState(e.target.value)}

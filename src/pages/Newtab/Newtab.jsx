@@ -93,7 +93,7 @@ export default function Album() {
 
     async function fetchZillow() {
       chrome.storage.local.get(["data", "lat", "long"], response => {
-        console.log(response.data)
+
         response.data.map((home) => {
           if (home.zpid || home.buildingId) {
             home.address = home.address === undefined ? "--" : home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
@@ -114,11 +114,12 @@ export default function Album() {
                   "K"
                 ) * 1000
               )
-
+            console.log(home.homeType)
           }
         })
         response.data.sort((a, b) => a.distance - b.distance);
         setHomes(response.data)
+
       })
     }
 
