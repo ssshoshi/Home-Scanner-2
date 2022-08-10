@@ -16,6 +16,9 @@
 .env.test.local
 .env.production.local
 .history
+build.zip
 
 # secrets
 secrets.*.js
+
+
