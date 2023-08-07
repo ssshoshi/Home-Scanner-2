@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from "react";
+/* global chrome */
+import React, { useEffect, useState } from "react";
 import axios from 'axios'
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
-import ButtonGroup from '@mui/material/ButtonGroup';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import Grid from "@mui/material/Grid"
-import { hasOnlyExpressionInitializer } from "typescript";
-import Box from "@mui/material/Box"
+
 
 
 
@@ -26,6 +24,7 @@ const Hcard = ({ home }) => {
   const [realtorImage, setRealtorImage] = useState("")
   const [streetviewImage, setStreetviewImage] = useState("")
   const [clicked, setClicked] = useState(false)
+  const [btnClicked, setBtnClicked] = useState(false)
 
   async function fetchData() {
     const res = await axios.get(url)
@@ -76,6 +75,15 @@ const Hcard = ({ home }) => {
     });
   }
 
+  const sendAddress = (address) => {
+    chrome.storage.local.set({ beenClicked: btnClicked, address: address })
+
+  }
+  
+  
+
+
+
   let image;
 
   if (clicked === true) {
@@ -92,7 +100,7 @@ const Hcard = ({ home }) => {
     } else if (streetviewImage) {
       image = streetviewImage
     } else {
-      image = home.satImage
+      // image = home.satImage
     }
   }
 
@@ -119,7 +127,8 @@ const Hcard = ({ home }) => {
 
             {home.realtorLink ? <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button> : ""}
             <Button sx={{ backgroundColor: '#1976d2', mr: 1, ml: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
-            <Button sx={{ backgroundColor: '#1976d2' }} variant="contained" href={`https://www.google.com/maps/@?api=1&map_action=pano&pano=${home.pano_id}&viewpoint=${home.latLong.latitude},${home.latLong.longitude}`} target="_blank" size="small">Streetview</Button>
+            <Button sx={{ backgroundColor: '#1976d2' }} variant="contained" target="_blank" size="small" onClick={() => { setBtnClicked(!btnClicked), sendAddress(home.address)}}>Streetview</Button>
+            {/* <Button sx={{ backgroundColor: '#1976d2' }} variant="contained" href={`https://www.google.com/maps/@?api=1&map_action=pano&pano=${home.pano_id}&viewpoint=${home.latLong.latitude},${home.latLong.longitude}`} target="_blank" size="small">Streetview</Button> */}
           </div>
         </div>
 

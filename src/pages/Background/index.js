@@ -5,13 +5,14 @@ let data = []
 let lat;
 let long;
 
-chrome.action.onClicked.addListener(tab => {
-  chrome.tabs.sendMessage(tab.id, "toggle");
-  console.log('message sent');
-});
 
+// Allows users to open the side panel by clicking on the action toolbar icon
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch((error) => console.error(error));
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+
   if (request.message === "verified") {
     console.log(request.lat)
     lat = parseFloat(request.lat)
@@ -45,13 +46,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       .then((zData) => {
         console.log(zData)
         data = zData.cat1.searchResults.mapResults
-        if (request.source === "vrapi") {
-          chrome.storage.local.set({ data: data, lat: lat, long: long, source: "vrapi" })
-          chrome.tabs.create({ url: 'newtab.html?source=vrapi' });
-        } else if (request.source === "google") {
-          chrome.storage.local.set({ data: data, lat: lat, long: long, source: "google" })
-        }
-
+        chrome.storage.local.set({ data: data, lat: lat, long: long, source: "google" })
       })
       .catch((error) => {
         console.log(error)
