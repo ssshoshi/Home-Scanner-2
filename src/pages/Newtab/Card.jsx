@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import Grid from "@mui/material/Grid"
+import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
 
 
@@ -123,12 +124,21 @@ const Hcard = ({ home }) => {
             }}
             alt="random"
           />
-          <div style={{ position: "absolute", bottom: 10 }}>
-
-            {home.realtorLink ? <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button> : ""}
-            <Button sx={{ backgroundColor: '#1976d2', mr: 1, ml: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
-            <Button sx={{ backgroundColor: '#1976d2' }} variant="contained" target="_blank" size="small" onClick={() => { setBtnClicked(!btnClicked), sendAddress(home.address)}}>Streetview</Button>
-            {/* <Button sx={{ backgroundColor: '#1976d2' }} variant="contained" href={`https://www.google.com/maps/@?api=1&map_action=pano&pano=${home.pano_id}&viewpoint=${home.latLong.latitude},${home.latLong.longitude}`} target="_blank" size="small">Streetview</Button> */}
+      <div style={{ position: "absolute", bottom: 10, width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {realtorLink ? (
+                <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button>
+              ) : null}
+              <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
+            </div>
+            <Button
+              sx={{ backgroundColor: '#1976d2', minWidth: '0px', alignSelf: 'flex-start', mr: 1 }}
+              variant="contained"
+              size="small"
+              onClick={() => { setBtnClicked(!btnClicked); sendAddress(home.address); }}
+            >
+              <FmdGoodIcon style={{ color: '#ea4335' }} />
+            </Button>
           </div>
         </div>
 

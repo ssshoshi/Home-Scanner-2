@@ -34,7 +34,6 @@ if (window.location.hostname === "www.google.com") {
       })
 
     new MutationObserver((mutations) => {
-
         const menu = document.querySelector("#action-menu")
         
         if(!document.querySelector("[data-index='10']")) {
@@ -51,6 +50,7 @@ if (window.location.hostname === "www.google.com") {
             lat = coord[0];
             long = coord[1];
             chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long, source: "google" });
+            chrome.runtime.sendMessage({ type: 'open_side_panel' });
 
         })
 
@@ -94,11 +94,6 @@ if (
 
 
 };
-
-
-
-
-
 
 
 //hostcompliance
@@ -158,17 +153,7 @@ if (window.location.hostname === "www.hostcompliance.com" || "safe-ca.hostcompli
 
             chrome.runtime.sendMessage({ message: "verified", lat: lat1, long: long1, source: "google" })
         };
-
-
-
-
     }, 2000)
-
-
-
-
-    //homescanner button on
-
 }
 
 

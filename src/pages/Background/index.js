@@ -13,6 +13,15 @@ chrome.sidePanel
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
+
+    // The callback for runtime.onMessage must return falsy if we're not sending a response
+    (async () => {
+      if (request.type === 'open_side_panel') {
+        // This will open a tab-specific side panel only on the current tab.
+        await chrome.sidePanel.open({ tabId: sender.tab.id });
+      }
+    })();
+
   if (request.message === "verified") {
     console.log(request.lat)
     lat = parseFloat(request.lat)
@@ -51,6 +60,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       .catch((error) => {
         console.log(error)
       });
+
+      
 
 
   }
