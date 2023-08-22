@@ -94,14 +94,17 @@ const Hcard = ({ home }) => {
       setClicked(!clicked)
     }
   } else {
-    if (home.zillowImage) {
+    if (!streetviewImage && !realtorImage && !home.zillowImage){
+      image = home.satImage
+    }
+    else if (home.zillowImage) {
       image = home.zillowImage
     } else if (realtorImage) {
       image = realtorImage
     } else if (streetviewImage) {
       image = streetviewImage
-    } else {
-      // image = home.satImage
+    } else if (!streetviewImage && !realtorImage && !home.zillowImage){
+      image = home.satImage
     }
   }
 
@@ -126,10 +129,11 @@ const Hcard = ({ home }) => {
           />
       <div style={{ position: "absolute", bottom: 10, width: '100%', display: 'flex', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              {realtorLink ? (
+              {realtorLink.length > 0 ? (
                 <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button>
               ) : null}
               <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
+              <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={`https://bing.com/maps?where1=` + home.latLong.latitude + `,` + home.latLong.longitude + `&lvl=20&style=h`} target="_blank" size="small">Bing</Button>
             </div>
             <Button
               sx={{ backgroundColor: '#1976d2', minWidth: '0px', alignSelf: 'flex-start', mr: 1 }}

@@ -152,6 +152,7 @@ if (window.location.hostname === "www.hostcompliance.com" || "safe-ca.hostcompli
             console.log(lat1, long1)
 
             chrome.runtime.sendMessage({ message: "verified", lat: lat1, long: long1, source: "google" })
+            chrome.runtime.sendMessage({ type: 'open_side_panel' });
         };
     }, 2000)
 }

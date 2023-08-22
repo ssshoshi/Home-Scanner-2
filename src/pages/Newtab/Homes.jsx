@@ -35,7 +35,6 @@ const Homes = ({ homes, typeValue, searchParam, formValue, scrollPosition }) => 
 
     return (
         <Container sx={{ py: 8 }} maxWidth="xl">
-            {/* End hero unit */}
             <Grid container spacing={4} sx={{mt: 0}}>
                 {search(type(homes)).map((home, index) => (
                     < Grid item key={index + home.address} xs={12} sm={6} md={4} >
