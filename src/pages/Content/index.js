@@ -18,12 +18,12 @@ function insertTextAndClickButton(text) {
   }
 
 if (window.location.hostname === "www.google.com") {
+
     
     chrome.storage.onChanged.addListener((e) => {
         console.log(e)
         if(e.address || e.beenClicked) {
         chrome.storage.local.get(["address"], response => {
-            console.log(response)
             insertTextAndClickButton(response.address)
         })
     }

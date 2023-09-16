@@ -13,6 +13,20 @@ chrome.sidePanel
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
+  async function getCurrentTab() {
+    let queryOptions = { active: true, lastFocusedWindow: true };
+    // `tab` will either be a `tabs.Tab` instance or `undefined`.
+    let [tab] = await chrome.tabs.query(queryOptions);
+    return tab;
+  }
+
+  if(request.message === "getUrl") {
+    console.log(request)
+    getCurrentTab(e).then(e=> {
+      console.log(e.url)
+    })
+  }
+
 
     // The callback for runtime.onMessage must return falsy if we're not sending a response
     (async () => {

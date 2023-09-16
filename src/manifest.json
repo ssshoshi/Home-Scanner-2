@@ -10,8 +10,7 @@
     "sidePanel",
     "storage",
     "tabs",
-    "scripting",
-    "activeTab"
+    "scripting"
   ],
   "host_permissions": [
     "https://zillow.com/*"

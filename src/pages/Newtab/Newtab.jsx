@@ -101,7 +101,7 @@ export default function Album() {
                   "K"
                 ) * 1000
               )
-            console.log(home.homeType)
+            console.log(home)
           }
         })
         response.data.sort((a, b) => a.distance - b.distance);

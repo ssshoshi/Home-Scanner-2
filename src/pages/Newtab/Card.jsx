@@ -26,6 +26,7 @@ const Hcard = ({ home }) => {
   const [streetviewImage, setStreetviewImage] = useState("")
   const [clicked, setClicked] = useState(false)
   const [btnClicked, setBtnClicked] = useState(false)
+  let image;
 
   async function fetchData() {
     const res = await axios.get(url)
@@ -57,15 +58,19 @@ const Hcard = ({ home }) => {
 
     const response = await axios.get(addrStreetview)
     if (response.data.status === "OK") {
+      console.log(response.data.status)
       home.pano_id = response.data.pano_id
       setStreetviewImage(`https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
         home.address
       )}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`)
-    } else if (response.data.status !== "OK") {
+    } else if (home.streetViewMetadataURL) {
       const response2 = await axios.get(home.streetViewMetadataURL)
       if (response2.data.status === "OK") {
+
         home.pano_id = response.data.pano_id
         setStreetviewImage(`https://maps.googleapis.com/maps/api/streetview?location=${home.latLong.latitude},${home.latLong.longitude}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`)
+      } else {
+        image = home.satImage
       }
     }
   }
@@ -85,7 +90,7 @@ const Hcard = ({ home }) => {
 
 
 
-  let image;
+ 
 
   if (clicked === true) {
     if (streetviewImage) {
@@ -94,17 +99,12 @@ const Hcard = ({ home }) => {
       setClicked(!clicked)
     }
   } else {
-    if (!streetviewImage && !realtorImage && !home.zillowImage){
-      image = home.satImage
-    }
-    else if (home.zillowImage) {
+    if (home.zillowImage) {
       image = home.zillowImage
     } else if (realtorImage) {
       image = realtorImage
     } else if (streetviewImage) {
       image = streetviewImage
-    } else if (!streetviewImage && !realtorImage && !home.zillowImage){
-      image = home.satImage
     }
   }
 
@@ -127,22 +127,25 @@ const Hcard = ({ home }) => {
             }}
             alt="random"
           />
-      <div style={{ position: "absolute", bottom: 10, width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              {realtorLink.length > 0 ? (
-                <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button>
-              ) : null}
-              <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
-              <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={`https://bing.com/maps?where1=` + home.latLong.latitude + `,` + home.latLong.longitude + `&lvl=20&style=h`} target="_blank" size="small">Bing</Button>
-            </div>
+           <div style={{ display: 'flex', position: 'absolute', top: 10}}>
             <Button
-              sx={{ backgroundColor: '#1976d2', minWidth: '0px', alignSelf: 'flex-start', mr: 1 }}
+              sx={{ backgroundColor: '#1976d2', minWidth: '0px', ml: 1, alignContent: 'flex-start' }}
               variant="contained"
               size="small"
               onClick={() => { setBtnClicked(!btnClicked); sendAddress(home.address); }}
             >
               <FmdGoodIcon style={{ color: '#ea4335' }} />
             </Button>
+            </div>
+      <div style={{ position: "absolute", bottom: 10, width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex' }}>
+              {realtorLink.length > 0 ? (
+                <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.realtor.com/realestateandhomes-detail/M" + realtorLink} size="small" target="_blank">Realtor</Button>
+              ) : null}
+              <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={"https://www.google.com/search?q=" + home.address} target="_blank" size="small">Search</Button>
+              <Button sx={{ backgroundColor: '#1976d2', ml: 1 }} variant="contained" href={`https://bing.com/maps?where1=` + home.latLong.latitude + `,` + home.latLong.longitude + `&lvl=20&style=h`} target="_blank" size="small">Bing</Button>
+            </div>
+           
           </div>
         </div>
 
@@ -180,11 +183,7 @@ const Hcard = ({ home }) => {
                 <strong>{home.distance}</strong>m away
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography variant="body1" align="right">
-                {home.statusText ? home.statusText : ""}
-              </Typography>
-            </Grid>
+          
 
           </Grid>
         </CardContent>
