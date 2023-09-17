@@ -10,6 +10,7 @@ import Link from '@mui/material/Link';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import Grid from "@mui/material/Grid"
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
+import { styled, alpha } from '@mui/material/styles';
 
 
 
@@ -99,6 +100,7 @@ const Hcard = ({ home }) => {
       setClicked(!clicked)
     }
   } else {
+    image = chrome.runtime.getURL("np.png")
     if (home.zillowImage) {
       image = home.zillowImage
     } else if (realtorImage) {
@@ -106,11 +108,18 @@ const Hcard = ({ home }) => {
     } else if (streetviewImage) {
       image = streetviewImage
     }
+
+    
   }
+
+  const StyledCard = styled(Card)(() => ({
+    transition: "transform 0.2s ease",
+    "&:hover": { boxShadow: "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px;" },
+  }))
 
   return (
     <LazyLoadComponent threshold={300} beforeLoad={() => { fetchData(); fetchStreetview(); }}>
-      <Card
+      <StyledCard
         sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
 
@@ -122,9 +131,9 @@ const Hcard = ({ home }) => {
             }}
 
             image={image}
-            onError={e => {
-              e.target.src = home.satImage;
-            }}
+            // onError={e => {
+            //   e.target.src = chrome.runtime.getURL("np.png")
+            // }}
             alt="random"
           />
            <div style={{ display: 'flex', position: 'absolute', top: 10}}>
@@ -187,7 +196,7 @@ const Hcard = ({ home }) => {
 
           </Grid>
         </CardContent>
-      </Card>
+      </StyledCard>
     </LazyLoadComponent>
   )
 }
