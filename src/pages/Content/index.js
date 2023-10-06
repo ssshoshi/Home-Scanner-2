@@ -15,28 +15,28 @@ function insertTextAndClickButton(text) {
     var searchButton = document.getElementById("searchbox-searchbutton");
     searchBoxInput.value = text;
     searchButton.click();
-  }
+}
 
 if (window.location.hostname === "www.google.com") {
 
-    
+
     chrome.storage.onChanged.addListener((e) => {
         console.log(e)
-        if(e.address || e.beenClicked) {
-        chrome.storage.local.get(["address"], response => {
-            insertTextAndClickButton(response.address)
-        })
-    }
-    if(e.beenClicked) {
-        var searchButton = document.getElementById("searchbox-searchbutton");
-        searchButton.click();
-    }
-      })
+        if (e.address || e.beenClicked) {
+            chrome.storage.local.get(["address"], response => {
+                insertTextAndClickButton(response.address)
+            })
+        }
+        if (e.beenClicked) {
+            var searchButton = document.getElementById("searchbox-searchbutton");
+            searchButton.click();
+        }
+    })
 
     new MutationObserver((mutations) => {
         const menu = document.querySelector("#action-menu")
-        
-        if(!document.querySelector("[data-index='10']")) {
+
+        if (!document.querySelector("[data-index='10']")) {
             menu.insertAdjacentHTML(
                 "beforeend",
                 ` <li aria-checked="false" data-index="10" role="menuitemradio" tabindex="0" jsaction="click: actionmenu.select; keydown: actionmenu.keydown;" jstcache="543" jsinstance="*9" class="fxNQSd" jsan="0.aria-checked,7.fxNQSd,0.data-index,0.role,0.tabindex,0.jsaction"><div jstcache="544" style="display:none"></div><div jstcache="545" style="display:none"></div><span jstcache="546" style="display:none"></span><div jstcache="547" class="twHv4e" jsan="7.twHv4e,t-nsjBiGFs4q0"><div jstcache="563" class="mLuXec" jsan="7.mLuXec">Home Scanner</div><div jstcache="564" style="display:none"></div></div></li>`
@@ -55,7 +55,7 @@ if (window.location.hostname === "www.google.com") {
         })
 
     })
-        .observe(document.querySelector("#hovercard"), { attributes: true, subtree: true });
+        .observe(document.querySelector("#fDahXd"), { attributes: true, subtree: true });
 }
 
 

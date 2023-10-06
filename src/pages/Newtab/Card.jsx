@@ -48,7 +48,11 @@ const Hcard = ({ home }) => {
             }
             break;
           } catch (err) {
-
+            console.log(err)
+            if(!err.response.ok) {
+              chrome.storage.local.set({captcha: false})
+              throw new Error("HTTP status " + err.response.status);
+            }
           }
         }
       }
@@ -138,6 +142,7 @@ const Hcard = ({ home }) => {
           />
            <div style={{ display: 'flex', position: 'absolute', top: 10}}>
             <Button
+            
               sx={{ backgroundColor: '#1976d2', minWidth: '0px', ml: 1, alignContent: 'flex-start' }}
               variant="contained"
               size="small"

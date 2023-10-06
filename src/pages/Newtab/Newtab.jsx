@@ -8,6 +8,14 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Homes from "./Homes";
 import useSearch from "./SearchForm";
 import useType from "./Type"
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import MapIcon from '@mui/icons-material/Map';
+import Tooltip from  '@mui/material/Tooltip'
 
 // calculate distance
 const getDistance = (lat1, lon1, lat2, lon2, unit) => {
@@ -63,11 +71,15 @@ export default function Album() {
   const [typeValue, TypeForm] = useType("All")
   const [homes, setHomes] = useState([]);
   const [searchParam] = useState(["address"]);
+  const [open, setOpen] = React.useState(false);
 
 
   useEffect(() => {
     fetchZillow()
       chrome.storage.onChanged.addListener((e) => {
+        if(e.captcha) {
+          handleClickOpen()
+        }
         if(e.data) {
         chrome.storage.local.get(["source"], response => {
           if (response.source === "google") {
@@ -110,8 +122,42 @@ export default function Album() {
     }
   }, [])
 
+
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+
   return (
+    
     <ThemeProvider theme={theme}>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Use Google's location service?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Let Google help apps determine location. This means sending anonymous
+            location data to Google, even when no apps are running.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Disagree</Button>
+          <Button onClick={handleClose} autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
       <CssBaseline />
       <AppBar position="fixed" >
         <Toolbar>
@@ -119,6 +165,11 @@ export default function Album() {
           <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
             Home Scanner
           </Typography>
+          <Tooltip title="Google Maps">
+          <Button href="https://maps.google.com/" target="_blank">
+          <MapIcon sx={{mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white"}}></MapIcon>
+          </Button>
+          </Tooltip>
           {TypeForm}
           {Form}
         </Toolbar>
@@ -127,5 +178,6 @@ export default function Album() {
         <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes}></Homes>
       </main>
     </ThemeProvider >
+    
   );
 }
