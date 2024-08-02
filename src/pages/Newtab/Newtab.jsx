@@ -14,10 +14,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import OpenInNew from '@mui/icons-material/OpenInNew';
 import MapIcon from '@mui/icons-material/Map';
-import Tooltip from  '@mui/material/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
 
-// calculate distance
+// calculate distance from searchpoint
 const getDistance = (lat1, lon1, lat2, lon2, unit) => {
   if (lat1 == lat2 && lon1 == lon2) {
     return 0;
@@ -72,26 +74,32 @@ export default function Album() {
   const [homes, setHomes] = useState([]);
   const [searchParam] = useState(["address"]);
   const [open, setOpen] = React.useState(false);
+  const [allHomes, setAllHomes] = useState([]);
+  const [savedHomes, setSavedHomes] = useState([]);
 
 
   useEffect(() => {
     fetchZillow()
-      chrome.storage.onChanged.addListener((e) => {
-        if(e.captcha) {
-          handleClickOpen()
-        }
-        if(e.data) {
+    chrome.storage.onChanged.addListener((e) => {
+      if (e.captcha) {
+        handleClickOpen()
+      }
+      if (e.data) {
         chrome.storage.local.get(["source"], response => {
           if (response.source === "google") {
             fetchZillow()
           }
         })
       }
-      })
-  
+      if (e.savedHomes) {
+        setSavedHomes(e.savedHomes.newValue)
+      }
+    })
+
 
     async function fetchZillow() {
       chrome.storage.local.get(["data", "lat", "long"], response => {
+        console.log(response.data)
         window.scrollTo(0, 0)
         response.data.map((home) => {
           if (home.zpid || home.buildingId) {
@@ -113,16 +121,14 @@ export default function Album() {
                   "K"
                 ) * 1000
               )
-            console.log(home)
           }
         })
         response.data.sort((a, b) => a.distance - b.distance);
         setHomes(response.data)
+        setAllHomes(response.data)
       })
     }
   }, [])
-
-
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -134,7 +140,7 @@ export default function Album() {
 
 
   return (
-    
+
     <ThemeProvider theme={theme}>
       <Dialog
         open={open}
@@ -161,23 +167,41 @@ export default function Album() {
       <CssBaseline />
       <AppBar position="fixed" >
         <Toolbar>
-          <MapsHomeWorkIcon sx={{ mr: 2 }} />
+          <Button>
+            <MapsHomeWorkIcon onClick={() => { setHomes(allHomes) }} sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></MapsHomeWorkIcon>
+          </Button>
           <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
             Home Scanner
           </Typography>
+          <Tooltip title="Saved">
+            <Button onClick={() => {
+              chrome.storage.local.get('savedHomes', function (result) {
+                setHomes(savedHomes)
+              });
+
+            }}
+            >
+              <BookmarksIcon sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></BookmarksIcon>
+            </Button>
+          </Tooltip>
           <Tooltip title="Google Maps">
-          <Button href="https://maps.google.com/" target="_blank">
-          <MapIcon sx={{mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white"}}></MapIcon>
-          </Button>
+            <Button href="https://maps.google.com/" target="_blank">
+              <MapIcon sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></MapIcon>
+            </Button>
+          </Tooltip>
+          <Tooltip title="New Tab">
+            <Button href={window.location.href} target="_blank">
+              <OpenInNew sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></OpenInNew>
+            </Button>
           </Tooltip>
           {TypeForm}
           {Form}
         </Toolbar>
       </AppBar>
       <main>
-        <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes}></Homes>
+        <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes} savedHomes={savedHomes}></Homes>
       </main>
     </ThemeProvider >
-    
+
   );
 }

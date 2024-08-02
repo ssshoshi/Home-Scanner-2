@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
 import { styled, alpha } from '@mui/material/styles';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-
 
 
 const Type = styled(FormControl)(({ theme }) => ({
@@ -38,16 +35,6 @@ const StyledSelect = styled(Select)(({ theme }) => ({
             width: '20ch',
         },
     },
-}));
-
-const IconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
 }));
 
 const TypeComponent = ({ setState, state }) => (

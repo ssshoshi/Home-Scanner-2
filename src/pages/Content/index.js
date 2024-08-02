@@ -1,7 +1,4 @@
 import { printLine } from './modules/print';
-import * as React from 'react';
-import { styled } from '@mui/system';
-import { createLogicalAnd } from 'typescript';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -31,7 +28,17 @@ if (window.location.hostname === "www.google.com") {
             var searchButton = document.getElementById("searchbox-searchbutton");
             searchButton.click();
         }
+        if (e.coords) {
+            chrome.storage.local.get(["coords"], response => {
+                insertTextAndClickButton(response.coords)
+            })
+        }
     })
+
+    const sendCoords = (coords) => {
+        chrome.storage.local.set({ coords: coords })
+
+    }
 
     new MutationObserver((mutations) => {
         const menu = document.querySelector("#action-menu")
@@ -51,6 +58,7 @@ if (window.location.hostname === "www.google.com") {
             long = coord[1];
             chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long, source: "google" });
             chrome.runtime.sendMessage({ type: 'open_side_panel' });
+            sendCoords(preSplitCoord)
 
         })
 
