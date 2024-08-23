@@ -1,6 +1,6 @@
 /* global chrome */
 import React, { useState } from "react";
-import axios from 'axios'
+import axios from 'axios';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -8,25 +8,47 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
-import Grid from "@mui/material/Grid"
+import Grid from "@mui/material/Grid";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import { styled } from '@mui/material/styles';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import SwipeableViews from 'react-swipeable-views';
+import { autoPlay } from 'react-swipeable-views-utils';
+import MobileStepper from '@mui/material/MobileStepper';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import { useTheme } from '@mui/material/styles';
+
+
+const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+
 
 
 const HomeCard = ({ home, homes, savedHomes }) => {
+  const theme = useTheme();
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
   const addrStreetview = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${encodeURIComponent(home.address)}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
   const [realtorLink, setRealtorLink] = useState([])
   const [realtorImage, setRealtorImage] = useState("")
-  const [carouselImages, setCarouselImages] = useState("")
+  const [carouselImages, setCarouselImages] = useState([])
+  const [carouselImagesLength, setCarouselImagesLength] = useState("")
   const [carouselImage, setCarouselImage] = useState("")
   const [streetviewImage, setStreetviewImage] = useState("")
   const [clicked, setClicked] = useState(false)
   const [btnClicked, setBtnClicked] = useState(false)
   const [homeSaved, setHomeSaved] = useState(false)
+  const [activeStep, setActiveStep] = useState(0);
   let image
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
 
   async function fetchData() {
     const res = await axios.get(url)
@@ -71,7 +93,7 @@ const HomeCard = ({ home, homes, savedHomes }) => {
     const response = await axios(carouselUrl, config)
     home.images = response.data
     setCarouselImage(response.data.data.property.photos[0].mixedSources.webp[0].url)
-
+    setCarouselImages(response.data.data.property.photos)
   }
 
   async function fetchStreetview() {
@@ -145,18 +167,107 @@ const HomeCard = ({ home, homes, savedHomes }) => {
       >
 
         <div style={{ position: "relative" }}>
-          <CardMedia
-            component="img"
-            onClick={() => {
-              setClicked(!clicked)
-            }}
+          {carouselImages.length > 1 ?
+            (
+              <div >
+                <MobileStepper style={{ position: 'absolute', bottom: 0, padding: '0px', width: '100%' }}
+                  variant="progress"
+                  steps={carouselImages.length}
+                  position="bottom"
+                  activeStep={activeStep}
+                  sx={{
+                    ".MuiLinearProgress-root": {
+                      width: '100%',
+                      height: '5px'
+                    }
+                  }}
+                  nextButton={
+                    <Button style={{ display: 'flex', bottom: '12em', position: 'absolute', right: 0 }} size="small" onClick={handleNext} disabled={activeStep === carouselImages.length - 1}>
+                      {theme.direction === 'rtl' ? (
+                        <KeyboardArrowLeft sx={{
+                          fontSize: "3rem",
+                          disabled
+                        }} />
+                      ) : (
+                        <KeyboardArrowRight sx={{
+                          fontSize: "3rem",
+                          color: "rgb(255, 255, 255)"
+                        }} />
+                      )}
+                    </Button>
+                  }
+                  backButton={
+                    <Button style={{ display: 'flex', bottom: '12em', position: 'absolute', left: 0 }} size="small" onClick={handleBack} disabled={activeStep === 0}>
+                      {theme.direction === 'rtl' ? (
+                        <KeyboardArrowRight sx={{
+                          fontSize: "3rem",
+                          disabled
+                        }} />
+                      ) : (
+                        <KeyboardArrowLeft sx={{
+                          fontSize: "3rem",
+                          color: "rgb(255, 255, 255)"
+                        }} />
+                      )}
+                    </Button>
+                  }
+                />
+                <AutoPlaySwipeableViews
+                  axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                  index={activeStep}
+                >
+                  {carouselImages.map((step, index) => (
+                    <div key={index}>
+                      {Math.abs(activeStep - index) <= 2 ? (
+                        <CardMedia
+                          component="img"
+                          image={step.mixedSources.webp[0].url}
+                          onClick={() => {
+                            setClicked(!clicked)
+                          }}
+                        />
+                      ) : null}
+                    </div>
+                  ))}
 
-            image={image}
-            // onError={e => {
-            //   e.target.src = chrome.runtime.getURL("np.png")
-            // }}
-            alt="random"
-          />
+                </AutoPlaySwipeableViews>
+                {/* <Button style={{ display: 'flex', position: 'absolute', top: '40%', right: 0 }} size="small" onClick={handleNext} disabled={activeStep === carouselImages.length - 1}>
+                  {theme.direction === 'rtl' ? (
+                    <KeyboardArrowLeft sx={{
+                      fontSize: "3rem",
+                      color: "rgb(255, 255, 255)"
+                    }} />
+                  ) : (
+                    <KeyboardArrowRight sx={{
+                      fontSize: "3rem",
+                      color: "rgb(255, 255, 255)"
+                    }} />
+                  )}
+                </Button>
+                <Button style={{ display: 'flex', position: 'absolute', top: '40%', left: 0 }} size="small" onClick={handleBack} disabled={activeStep === 0}>
+                  {theme.direction === 'rtl' ? (
+                    <KeyboardArrowRight sx={{
+                      fontSize: "3rem",
+                      color: "rgb(255, 255, 255)"
+                    }} />
+                  ) : (
+                    <KeyboardArrowLeft sx={{
+                      fontSize: "3rem",
+                      color: "rgb(255, 255, 255)"
+                    }} />
+                  )}
+                </Button> */}
+              </div>) :
+            <CardMedia
+              component="img"
+              image={image}
+              onClick={() => {
+                setClicked(!clicked)
+              }}
+
+            />
+          }
+
           <div style={{ display: 'flex', position: 'absolute', top: 10 }}>
             <Button
               sx={{ backgroundColor: '#1976d2', minWidth: '0px', ml: 1, alignContent: 'flex-start' }}
@@ -219,8 +330,6 @@ const HomeCard = ({ home, homes, savedHomes }) => {
             </div>
           </div>
         </div>
-
-
 
         <CardContent sx={{ flexGrow: 1 }}>
           <Grid container rowSpacing={0} columnSpacing={2}>
