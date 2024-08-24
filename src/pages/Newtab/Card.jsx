@@ -25,7 +25,7 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 
 
-const HomeCard = ({ home, homes, savedHomes }) => {
+const HomeCard = ({ home, homes, savedHomes, scrollPosition }) => {
   const theme = useTheme();
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
   const addrStreetview = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${encodeURIComponent(home.address)}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
@@ -42,40 +42,25 @@ const HomeCard = ({ home, homes, savedHomes }) => {
   let image
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setActiveStep((prevActiveStep) =>
+      prevActiveStep === carouselImages.length - 1 ? 0 : prevActiveStep + 1
+    );
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setActiveStep((prevActiveStep) =>
+      prevActiveStep === 0 ? carouselImages.length - 1 : prevActiveStep - 1
+    );
   };
 
 
   async function fetchData() {
-    const res = await axios.get(url)
+    const res = await axios.get(url);
     for (let i of res.data.autocomplete) {
       if (i.area_type === "address") {
         setRealtorLink(i.mpr_id);
-        home.realtorLink = realtorLink
+        home.realtorLink = realtorLink;
         let realtorURL = `https://www.realtor.com/realestateandhomes-detail/M${i.mpr_id}`;
-        // if (!home.zillowImage) {
-        //   try {
-        //     const response = await axios.get(realtorURL)
-        //     const respHtml = response.data
-        //     const doc = new DOMParser().parseFromString(respHtml, 'text/html')
-        //     // console.log(doc)
-        //     if (doc.querySelector('meta[property="og:image"]')) {
-        //       console.log(home.address + " used")
-        //       setRealtorImage(doc.querySelector('meta[property="og:image"]').content)
-        //     }
-        //     break;
-        //   } catch (err) {
-        //     console.log(err)
-        //     if (!err.response.ok) {
-        //       chrome.storage.local.set({ captcha: false })
-        //       throw new Error("HTTP status " + err.response.status);
-        //     }
-        //   }
-        // }
       }
     }
   }
@@ -146,7 +131,7 @@ const HomeCard = ({ home, homes, savedHomes }) => {
       setClicked(!clicked)
     }
   } else {
-    image = carouselImage
+    image = streetviewImage
   }
 
 
@@ -157,15 +142,18 @@ const HomeCard = ({ home, homes, savedHomes }) => {
   }))
 
   return (
-    <LazyLoadComponent threshold={300} beforeLoad={() => {
-      fetchData();
-      fetchStreetview();
-      fetchCarousel();
-    }}>
+    <LazyLoadComponent scrollPosition={scrollPosition} threshold={1000} width={600} height={600}
+      beforeLoad={() => {
+        fetchData();
+        fetchStreetview();
+        if (home.hasImage) {
+          fetchCarousel();
+        }
+      }}
+    >
       <StyledCard
         sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
-
         <div style={{ position: "relative" }}>
           {carouselImages.length > 1 ?
             (
@@ -182,7 +170,7 @@ const HomeCard = ({ home, homes, savedHomes }) => {
                     }
                   }}
                   nextButton={
-                    <Button style={{ display: 'flex', bottom: '12em', position: 'absolute', right: 0 }} size="small" onClick={handleNext} disabled={activeStep === carouselImages.length - 1}>
+                    <Button style={{ display: 'flex', bottom: '11em', position: 'absolute', right: 0 }} size="small" onClick={handleNext}>
                       {theme.direction === 'rtl' ? (
                         <KeyboardArrowLeft sx={{
                           fontSize: "3rem",
@@ -197,7 +185,7 @@ const HomeCard = ({ home, homes, savedHomes }) => {
                     </Button>
                   }
                   backButton={
-                    <Button style={{ display: 'flex', bottom: '12em', position: 'absolute', left: 0 }} size="small" onClick={handleBack} disabled={activeStep === 0}>
+                    <Button style={{ display: 'flex', bottom: '11em', position: 'absolute', left: 0 }} size="small" onClick={handleBack}>
                       {theme.direction === 'rtl' ? (
                         <KeyboardArrowRight sx={{
                           fontSize: "3rem",
@@ -229,34 +217,7 @@ const HomeCard = ({ home, homes, savedHomes }) => {
                       ) : null}
                     </div>
                   ))}
-
                 </AutoPlaySwipeableViews>
-                {/* <Button style={{ display: 'flex', position: 'absolute', top: '40%', right: 0 }} size="small" onClick={handleNext} disabled={activeStep === carouselImages.length - 1}>
-                  {theme.direction === 'rtl' ? (
-                    <KeyboardArrowLeft sx={{
-                      fontSize: "3rem",
-                      color: "rgb(255, 255, 255)"
-                    }} />
-                  ) : (
-                    <KeyboardArrowRight sx={{
-                      fontSize: "3rem",
-                      color: "rgb(255, 255, 255)"
-                    }} />
-                  )}
-                </Button>
-                <Button style={{ display: 'flex', position: 'absolute', top: '40%', left: 0 }} size="small" onClick={handleBack} disabled={activeStep === 0}>
-                  {theme.direction === 'rtl' ? (
-                    <KeyboardArrowRight sx={{
-                      fontSize: "3rem",
-                      color: "rgb(255, 255, 255)"
-                    }} />
-                  ) : (
-                    <KeyboardArrowLeft sx={{
-                      fontSize: "3rem",
-                      color: "rgb(255, 255, 255)"
-                    }} />
-                  )}
-                </Button> */}
               </div>) :
             <CardMedia
               component="img"
