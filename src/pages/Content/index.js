@@ -41,18 +41,39 @@ if (window.location.hostname === "www.google.com") {
     }
 
     new MutationObserver((mutations) => {
-        const menu = document.querySelector("#action-menu")
+        const menu = document.querySelector("#action-menu > div")
 
-        if (!document.querySelector("[data-index='10']")) {
+        // Find the highest data-index to insert as the last item
+        const menuItems = menu.querySelectorAll("[data-index]");
+        let maxIndex = 0;
+
+        menuItems.forEach(item => {
+            const index = parseInt(item.getAttribute("data-index"));
+            if (index > maxIndex) {
+                maxIndex = index;
+            }
+        });
+
+        const nextIndex = maxIndex + 1;
+
+        // Only insert if Home Scanner menu doesn't already exist
+        // if (!document.querySelector("[data-index='" + nextIndex + "']")) {
+        //     menu.insertAdjacentHTML(
+        //         "beforeend",
+        //         ` <li aria-checked="false" data-index="${nextIndex}" role="menuitemradio" tabindex="0" jsaction="click: actionmenu.select; keydown: actionmenu.keydown;" jstcache="543" jsinstance="*9" class="fxNQSd" jsan="0.aria-checked,7.fxNQSd,0.data-index,0.role,0.tabindex,0.jsaction"><div jstcache="544" style="display:none"></div><div jstcache="545" style="display:none"></div><span jstcache="546" style="display:none"></span><div jstcache="547" class="twHv4e" jsan="7.twHv4e,t-nsjBiGFs4q0"><div jstcache="563" class="mLuXec" jsan="7.mLuXec">Home Scanner</div><div jstcache="564" style="display:none"></div></div></li>`
+        //     );
+        // }
+
+        if (!document.querySelector("[data-index='" + nextIndex + "']")) {
             menu.insertAdjacentHTML(
                 "beforeend",
-                ` <li aria-checked="false" data-index="10" role="menuitemradio" tabindex="0" jsaction="click: actionmenu.select; keydown: actionmenu.keydown;" jstcache="543" jsinstance="*9" class="fxNQSd" jsan="0.aria-checked,7.fxNQSd,0.data-index,0.role,0.tabindex,0.jsaction"><div jstcache="544" style="display:none"></div><div jstcache="545" style="display:none"></div><span jstcache="546" style="display:none"></span><div jstcache="547" class="twHv4e" jsan="7.twHv4e,t-nsjBiGFs4q0"><div jstcache="563" class="mLuXec" jsan="7.mLuXec">Home Scanner</div><div jstcache="564" style="display:none"></div></div></li>`
+                ` <div aria-checked="false" class="fxNQSd" data-index="${nextIndex}" role="menuitemradio" tabindex="0" jsaction="click: actionmenu.select; keydown: actionmenu.keydown"><div class="twHv4e"><div class="mLuXec">Home Scanner</div></div></div>`
             );
         }
 
 
-        document.querySelector("[data-index='10']").addEventListener('click', () => {
-            let preSplitCoord = document.querySelector("#action-menu > div").textContent
+        document.querySelector("[data-index='" + nextIndex + "']").addEventListener('click', () => {
+            let preSplitCoord = document.querySelectorAll("#action-menu > div > div")[0].textContent
             let coord = preSplitCoord.split(/,/)
             lat = coord[0];
             long = coord[1];
