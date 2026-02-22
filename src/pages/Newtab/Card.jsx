@@ -28,8 +28,6 @@ const StyledCard = styled(Card)(() => ({
   "&:hover": { boxShadow: "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px;" },
 }))
 
-
-
 const formatDistance = (distance, unit) => {
   if (unit === 'mi') {
     if (distance < 0.1) return { value: Math.round(distance * 5280), unit: 'ft' };
@@ -40,7 +38,19 @@ const formatDistance = (distance, unit) => {
   }
 };
 
-const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => {
+// Session cache: survives re-renders and filter changes within the same panel session
+const cardCache = new Map();
+
+// Write fetched data into persistent storage cache keyed by zpid
+function updateHomeDataCache(zpid, patch) {
+  chrome.storage.local.get({ homeDataCache: {} }, (result) => {
+    const cache = result.homeDataCache;
+    cache[zpid] = { ...cache[zpid], ...patch };
+    chrome.storage.local.set({ homeDataCache: cache });
+  });
+}
+
+const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   const theme = useTheme();
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
   const addrStreetview = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${encodeURIComponent(home.address)}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
@@ -64,13 +74,15 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
     );
   };
 
-
   async function fetchData() {
     const res = await axios.get(url);
     for (let i of res.data.autocomplete) {
       if (i.area_type === "address") {
         setRealtorLink(i.mpr_id);
         home.realtorLink = i.mpr_id;
+        const cached = cardCache.get(home.zpid) || {};
+        cardCache.set(home.zpid, { ...cached, realtorLink: i.mpr_id });
+        updateHomeDataCache(home.zpid, { realtorLink: i.mpr_id });
       }
     }
   }
@@ -80,26 +92,39 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
       if (response && response.data && response.data.property && response.data.property.photos) {
         const photos = response.data.property.photos;
         setCarouselImages(photos);
+        const cached = cardCache.get(home.zpid) || {};
+        cardCache.set(home.zpid, { ...cached, photos });
+        updateHomeDataCache(home.zpid, { photos });
       }
     });
   }
 
   async function fetchStreetview() {
-
     const response = await axios.get(addrStreetview)
     if (response.data.status === "OK") {
       home.pano_id = response.data.pano_id
-      setStreetviewImage(`https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
+      const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
         home.address
-      )}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`)
+      )}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
+      setStreetviewImage(streetviewUrl);
+      const cached = cardCache.get(home.zpid) || {};
+      cardCache.set(home.zpid, { ...cached, streetviewUrl });
+      updateHomeDataCache(home.zpid, { streetviewUrl });
     } else if (home.streetViewMetadataURL) {
       const response2 = await axios.get(home.streetViewMetadataURL)
       if (response2.data.status === "OK") {
-
         home.pano_id = response.data.pano_id
-        setStreetviewImage(`https://maps.googleapis.com/maps/api/streetview?location=${home.latLong.latitude},${home.latLong.longitude}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`)
+        const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${home.latLong.latitude},${home.latLong.longitude}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
+        setStreetviewImage(streetviewUrl);
+        const cached = cardCache.get(home.zpid) || {};
+        cardCache.set(home.zpid, { ...cached, streetviewUrl });
+        updateHomeDataCache(home.zpid, { streetviewUrl });
       } else {
-        image = home.satImage
+        const streetviewUrl = home.satImage;
+        setStreetviewImage(streetviewUrl);
+        const cached = cardCache.get(home.zpid) || {};
+        cardCache.set(home.zpid, { ...cached, streetviewUrl });
+        updateHomeDataCache(home.zpid, { streetviewUrl });
       }
     }
   }
@@ -116,7 +141,7 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
 
   useEffect(() => {
     chrome.storage.local.get('savedHomes', function (result) {
-      var isAlreadySaved = result.savedHomes.some(function (savedHome) {
+      var isAlreadySaved = (result.savedHomes || []).some(function (savedHome) {
         return savedHome.zpid === home.zpid
       });
       setHomeSaved(isAlreadySaved);
@@ -131,16 +156,37 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
 
   const image = streetviewImage;
 
-
-
   return (
     <LazyLoadComponent scrollPosition={scrollPosition} threshold={1000} width={600} height={600}
       beforeLoad={() => {
+        const zpid = home.zpid;
+
+        // Session cache hit — restore state without any API calls
+        if (cardCache.has(zpid)) {
+          const cached = cardCache.get(zpid);
+          if (cached.streetviewUrl) setStreetviewImage(cached.streetviewUrl);
+          if (cached.realtorLink) setRealtorLink(cached.realtorLink);
+          if (cached.photos) setCarouselImages(cached.photos);
+          return;
+        }
+
+        // Persistent cache hit — home already hydrated from storage in fetchZillow
+        if (home.streetviewUrl || home.realtorLink || home.photos) {
+          if (home.streetviewUrl) setStreetviewImage(home.streetviewUrl);
+          if (home.realtorLink) setRealtorLink(home.realtorLink);
+          if (home.photos) setCarouselImages(home.photos);
+          cardCache.set(zpid, {
+            streetviewUrl: home.streetviewUrl,
+            realtorLink: home.realtorLink,
+            photos: home.photos,
+          });
+          return;
+        }
+
+        // No cache — fetch from APIs
         fetchData();
         fetchStreetview();
-        if (home.hasImage) {
-          fetchCarousel();
-        }
+        if (home.hasImage) fetchCarousel();
       }}
     >
       <StyledCard

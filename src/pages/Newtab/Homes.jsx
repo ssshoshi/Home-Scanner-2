@@ -1,6 +1,6 @@
 import React from 'react';
 import Container from '@mui/material/Container';
-import { LazyLoadImage, trackWindowScroll } from 'react-lazy-load-image-component';
+import { trackWindowScroll } from 'react-lazy-load-image-component';
 import Grid from '@mui/material/Grid';
 import HomeCard from './Card'
 import Skeleton from '@mui/material/Skeleton';
@@ -20,7 +20,7 @@ const SkeletonCard = () => (
     </Card>
 );
 
-const Homes = ({ savedHomes, homes, typeValue, searchParam, formValue, scrollPosition, loading, hasSearched, distanceUnit }) => {
+const Homes = ({ homes, typeValue, searchParam, formValue, scrollPosition, loading, hasSearched, distanceUnit }) => {
     function search(homes) {
         return homes.filter((home) => {
             return searchParam.some((newItem) => {
@@ -54,7 +54,7 @@ const Homes = ({ savedHomes, homes, typeValue, searchParam, formValue, scrollPos
                 ) : (
                     filtered.map((home, index) => (
                         <Grid item key={index + home.address} xs={12} sm={6} md={4}>
-                            <HomeCard scrollPosition={scrollPosition} home={home} homes={homes} savedHomes={savedHomes} distanceUnit={distanceUnit}></HomeCard>
+                            <HomeCard scrollPosition={scrollPosition} home={home} distanceUnit={distanceUnit}></HomeCard>
                         </Grid>
                     ))
                 )}

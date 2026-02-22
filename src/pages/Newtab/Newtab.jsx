@@ -83,6 +83,9 @@ export default function Album() {
 
   useEffect(() => {
     fetchZillow();
+    chrome.storage.local.get({ savedHomes: [] }, (result) => {
+      setSavedHomes(result.savedHomes);
+    });
     const storageListener = (e) => {
       if (e.captcha) {
         handleClickOpen()
@@ -108,8 +111,9 @@ export default function Album() {
     return () => chrome.storage.onChanged.removeListener(storageListener);
 
     async function fetchZillow() {
-      chrome.storage.local.get(["data", "lat", "long", "distanceUnit"], response => {
+      chrome.storage.local.get(["data", "lat", "long", "distanceUnit", "homeDataCache"], response => {
         const unit = response.distanceUnit || 'm';
+        const homeDataCache = response.homeDataCache || {};
         if (!response.data) {
           setLoading(false);
           return;
@@ -129,6 +133,9 @@ export default function Album() {
               home.distance = unit === 'mi'
                 ? Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude) * 10000) / 10000
                 : Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude, "K") * 1000)
+            // Hydrate from persistent cache so cards don't need to re-fetch
+            const cached = homeDataCache[home.zpid];
+            if (cached) Object.assign(home, cached);
           }
         })
         response.data.sort((a, b) => a.distance - b.distance);
@@ -186,8 +193,8 @@ export default function Album() {
           </Typography>
           <Tooltip title="Saved">
             <Button onClick={() => {
-              chrome.storage.local.get('savedHomes', function (result) {
-                setHomes(savedHomes)
+              chrome.storage.local.get({ savedHomes: [] }, function (result) {
+                setHomes(result.savedHomes);
               });
 
             }}
@@ -210,7 +217,7 @@ export default function Album() {
         </Toolbar>
       </AppBar>
       <main>
-        <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes} savedHomes={savedHomes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit}></Homes>
+        <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit}></Homes>
       </main>
     </ThemeProvider >
 
