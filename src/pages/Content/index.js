@@ -41,7 +41,10 @@ if (window.location.hostname === "www.google.com") {
     }
 
     new MutationObserver((mutations) => {
-        const menu = document.querySelector("#action-menu > div")
+        const menu = document.querySelector('[role="menu"] > div')
+        if (!menu) return;
+
+
 
         // Find the highest data-index to insert as the last item
         const menuItems = menu.querySelectorAll("[data-index]");
@@ -64,27 +67,25 @@ if (window.location.hostname === "www.google.com") {
         //     );
         // }
 
-        if (!document.querySelector("[data-index='" + nextIndex + "']")) {
+        if (!menu.querySelector("[data-index='" + nextIndex + "']")) {
             menu.insertAdjacentHTML(
                 "beforeend",
                 ` <div aria-checked="false" class="fxNQSd" data-index="${nextIndex}" role="menuitemradio" tabindex="0" jsaction="click: actionmenu.select; keydown: actionmenu.keydown"><div class="twHv4e"><div class="mLuXec">Home Scanner</div></div></div>`
             );
+
+            menu.querySelector("[data-index='" + nextIndex + "']").addEventListener('click', () => {
+                let preSplitCoord = menu.querySelector('[data-index="0"] .mLuXec').textContent
+                let coord = preSplitCoord.split(/,/)
+                lat = coord[0].trim();
+                long = coord[1].trim();
+                chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long, source: "google" });
+                chrome.runtime.sendMessage({ type: 'open_side_panel' });
+                sendCoords(preSplitCoord)
+            })
         }
 
-
-        document.querySelector("[data-index='" + nextIndex + "']").addEventListener('click', () => {
-            let preSplitCoord = document.querySelectorAll("#action-menu > div > div")[0].textContent
-            let coord = preSplitCoord.split(/,/)
-            lat = coord[0];
-            long = coord[1];
-            chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long, source: "google" });
-            chrome.runtime.sendMessage({ type: 'open_side_panel' });
-            sendCoords(preSplitCoord)
-
-        })
-
     })
-        .observe(document.querySelector("#fDahXd"), { attributes: true, subtree: true });
+        .observe(document.querySelector(".Bl3yde"), { attributes: true, subtree: true });
 }
 
 
