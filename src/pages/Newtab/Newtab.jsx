@@ -4,7 +4,7 @@ import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
 import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Homes from "./Homes";
 import SearchForm from "./SearchForm";
 import TypeFilter from "./Type"
@@ -49,25 +49,7 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
 
 const SEARCH_PARAM = ["address"];
 
-const theme = createTheme({
-  overrides: {
-    MuiOutlinedInput: {
-      root: {
-        "& $notchedOutline": {
-          borderWidth: 0
-        },
-        "&:hover $notchedOutline": {
-          borderWidth: 0
-        },
-        "&$focused $notchedOutline": {
-          borderWidth: 0
-        }
-      },
-      focused: {},
-      notchedOutline: {}
-    }
-  }
-});
+const theme = createTheme();
 
 
 export default function Album() {

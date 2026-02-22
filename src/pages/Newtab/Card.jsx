@@ -1,6 +1,5 @@
 /* global chrome */
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -70,7 +69,6 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   const [realtorLink, setRealtorLink] = useState("")
   const [carouselImages, setCarouselImages] = useState([])
   const [streetviewImage, setStreetviewImage] = useState("")
-  const [clicked, setClicked] = useState(false)
   const [homeSaved, setHomeSaved] = useState(false)
   const [activeStep, setActiveStep] = useState(0);
   const handleNext = () => {
@@ -86,8 +84,9 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   };
 
   async function fetchData() {
-    const res = await axios.get(url);
-    for (let i of res.data.autocomplete) {
+    const res = await fetch(url);
+    const data = await res.json();
+    for (let i of data.autocomplete) {
       if (i.area_type === "address") {
         setRealtorLink(i.mpr_id);
         home.realtorLink = i.mpr_id;
@@ -111,9 +110,10 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   }
 
   async function fetchStreetview() {
-    const response = await axios.get(addrStreetview)
-    if (response.data.status === "OK") {
-      home.pano_id = response.data.pano_id
+    const res = await fetch(addrStreetview);
+    const data = await res.json();
+    if (data.status === "OK") {
+      home.pano_id = data.pano_id;
       const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
         home.address
       )}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
@@ -122,9 +122,10 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
       cardCache.set(home.zpid, { ...cached, streetviewUrl });
       updateHomeDataCache(home.zpid, { streetviewUrl });
     } else if (home.streetViewMetadataURL) {
-      const response2 = await axios.get(home.streetViewMetadataURL)
-      if (response2.data.status === "OK") {
-        home.pano_id = response2.data.pano_id
+      const res2 = await fetch(home.streetViewMetadataURL);
+      const data2 = await res2.json();
+      if (data2.status === "OK") {
+        home.pano_id = data2.pano_id;
         const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${home.latLong.latitude},${home.latLong.longitude}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
         setStreetviewImage(streetviewUrl);
         const cached = cardCache.get(home.zpid) || {};
@@ -152,12 +153,6 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
       setHomeSaved(isAlreadySaved);
     });
   }, [home.zpid]);
-
-  useEffect(() => {
-    if (clicked && !streetviewImage) {
-      setClicked(false);
-    }
-  }, [clicked, streetviewImage]);
 
   const image = streetviewImage;
   const dist = formatDistance(home.distance, distanceUnit);
@@ -249,9 +244,6 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
                         <CardMedia
                           component="img"
                           image={step.mixedSources.webp[0].url}
-                          onClick={() => {
-                            setClicked(!clicked)
-                          }}
                         />
                       ) : null}
                     </div>
@@ -261,10 +253,6 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
             <CardMedia
               component="img"
               image={image}
-              onClick={() => {
-                setClicked(!clicked)
-              }}
-
             />
           }
 

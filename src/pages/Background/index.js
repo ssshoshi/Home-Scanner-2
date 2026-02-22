@@ -20,6 +20,7 @@ async function fetchZillowData(body) {
     method: 'PUT',
     body,
   });
+  if (!res.ok) throw new Error(`Zillow responded with ${res.status}`);
   return res.json();
 }
 
@@ -45,7 +46,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       headers: { 'content-type': 'application/json' },
       body: body
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`Carousel fetch failed: ${res.status}`);
+        return res.json();
+      })
       .then(data => sendResponse(data))
       .catch(err => sendResponse({ error: err.message }));
     return true;

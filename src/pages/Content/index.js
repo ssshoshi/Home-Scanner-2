@@ -20,14 +20,10 @@ if (window.location.hostname === "www.google.com") {
 
     chrome.storage.onChanged.addListener((e) => {
         if (e.address) {
-            chrome.storage.local.get(["address"], response => {
-                insertTextAndClickButton(response.address)
-            })
+            insertTextAndClickButton(e.address.newValue)
         }
         if (e.coords) {
-            chrome.storage.local.get(["coords"], response => {
-                insertTextAndClickButton(response.coords)
-            })
+            insertTextAndClickButton(e.coords.newValue)
         }
     })
 
@@ -73,7 +69,7 @@ if (window.location.hostname === "www.google.com") {
         }
 
     })
-        .observe(document.querySelector(".Bl3yde"), { attributes: true, subtree: true });
+        .observe(document.querySelector(".Bl3yde") || document.body, { attributes: true, subtree: true });
 }
 
 
