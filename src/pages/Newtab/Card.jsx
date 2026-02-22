@@ -210,10 +210,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
                   nextButton={
                     <Button style={{ display: 'flex', bottom: '11em', position: 'absolute', right: 0 }} size="small" onClick={handleNext}>
                       {theme.direction === 'rtl' ? (
-                        <KeyboardArrowLeft sx={{
-                          fontSize: "3rem",
-                          disabled
-                        }} />
+                        <KeyboardArrowLeft sx={{ fontSize: "3rem" }} />
                       ) : (
                         <KeyboardArrowRight sx={{
                           fontSize: "3rem",
@@ -225,10 +222,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
                   backButton={
                     <Button style={{ display: 'flex', bottom: '11em', position: 'absolute', left: 0 }} size="small" onClick={handleBack}>
                       {theme.direction === 'rtl' ? (
-                        <KeyboardArrowRight sx={{
-                          fontSize: "3rem",
-                          disabled
-                        }} />
+                        <KeyboardArrowRight sx={{ fontSize: "3rem" }} />
                       ) : (
                         <KeyboardArrowLeft sx={{
                           fontSize: "3rem",

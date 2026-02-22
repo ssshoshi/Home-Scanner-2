@@ -155,20 +155,15 @@ if (window.location.hostname === "www.hostcompliance.com" || "safe-ca.hostcompli
             "beforeend",
             `
             
-            <a class="md-icon-button md-button md-ink-ripple" target="_blank" href='http://googl.com/#q="${searchTerm}"'>
+            <a class="md-icon-button md-button md-ink-ripple" target="_blank" href='https://www.google.com/search?q="${searchTerm}"'>
             <md-icon md-font-icon="fa fa-search" class="ng-scope md-font FontAwesome fa fa-search" role="img" aria-label="fa fa-search"></md-icon>
             
             `
         );
 
         document.querySelector(".hscan").onclick = function () {
-            let lat1 = coord[0];
-            let long1 = coord[1];
-            if (chrome.runtime.error) {
-                console.log("Runtime error.");
-            }
-            console.log(lat1, long1)
-
+            const lat1 = coord[0];
+            const long1 = coord[1];
             chrome.runtime.sendMessage({ message: "verified", lat: lat1, long: long1, source: "google" })
             chrome.runtime.sendMessage({ type: 'open_side_panel' });
         };

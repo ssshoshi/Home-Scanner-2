@@ -167,18 +167,17 @@ export default function Album() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+          Zillow CAPTCHA Detected
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending anonymous
-            location data to Google, even when no apps are running.
+            Zillow has flagged this request. Open Zillow to complete the CAPTCHA, then try your search again.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
-          <Button onClick={handleClose} autoFocus>
-            Agree
+          <Button onClick={handleClose}>Dismiss</Button>
+          <Button href="https://www.zillow.com" target="_blank" onClick={handleClose} autoFocus>
+            Open Zillow
           </Button>
         </DialogActions>
       </Dialog>

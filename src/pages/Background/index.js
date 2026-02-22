@@ -1,10 +1,27 @@
-console.log('This is the background page.');
-console.log('Put the background scripts here.');
-
 // open the side panel by clicking on the action toolbar icon
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
+
+// Convert a lat/long point into map boundary coords for Zillow search params
+const getMapBoundaries = (lat, long) => {
+  const delta = 0.002743;
+  return JSON.stringify({
+    west: long - delta,
+    east: long + delta,
+    south: lat - delta,
+    north: lat + delta,
+  });
+};
+
+async function fetchZillowData(body) {
+  const res = await fetch('https://www.zillow.com/async-create-search-page-state', {
+    headers: { 'content-type': 'application/json' },
+    method: 'PUT',
+    body,
+  });
+  return res.json();
+}
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
@@ -38,41 +55,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     const lat = parseFloat(request.lat)
     const long = parseFloat(request.long)
 
+    const body = `{"searchQueryState":{"pagination":{},"isMapVisible":true,"mapBounds":${getMapBoundaries(lat, long)},"mapZoom":18,"filterState":{"sortSelection":{"value":"days"},"isAllHomes":{"value":true}},"isListVisible":false},"wants":{"cat1":["mapResults"],"cat2":["total"]},"requestId":9,"isDebugRequest":false}`
 
-    // convert input coordinates to map boundary coordinates for Zillow url params
-    const getMapBoundaries = (lat, long) => {
-      const coords = {};
-      const x = 0.002743;
-      const y = 0.002743;
-
-      coords.west = long - y;
-      coords.east = long + y;
-      coords.south = lat - x;
-      coords.north = lat + x;
-      return JSON.stringify(coords);
-    };
-
-
-    let body = `{"searchQueryState":{"pagination":{},"isMapVisible":true,"mapBounds":${getMapBoundaries(
-      parseFloat(request.lat),
-      parseFloat(request.long)
-    )},"mapZoom":18,"filterState":{"sortSelection":{"value":"days"},"isAllHomes":{"value":true}},"isListVisible":false},"wants":{"cat1":["mapResults"],"cat2":["total"]},"requestId":9,"isDebugRequest":false}`
-
-    const zillowUrl = 'https://www.zillow.com/async-create-search-page-state'
-
-    async function fetchData() {
-      let res = await fetch(zillowUrl, {
-        "headers": {
-          "content-type": "application/json",
-        },
-        "method": "PUT",
-        "body": body
-      })
-      const zillowData = await res.json()
-      return zillowData
-    }
-
-    fetchData().then(zillowData => {
+    fetchZillowData(body).then(zillowData => {
       const data = zillowData.cat1.searchResults.mapResults
       chrome.storage.local.set({ data: data, lat: lat, long: long, source: "google" })
     }).catch(err => {
