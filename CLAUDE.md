@@ -52,7 +52,7 @@ Each page compiles to a separate bundle:
 
 - **Carousel images**: The background script has a `fetchCarousel` function (currently unused in the main flow) that calls the Zillow GraphQL endpoint `https://www.zillow.com/zg-graph?zpid=<zpid>&operationName=getCarouselPhotos`.
 
-- **Content script DOM targeting**: The Google Maps injection observes `#fDahXd` for mutations and inserts a menu item into `#action-menu > div`. These selectors are tied to Google Maps' internal DOM structure and may break if Google updates their markup.
+- **Content script DOM targeting**: The Google Maps injection observes `.Bl3yde` (the wrapper div containing the right-click menu) for mutations. It inserts a menu item into `[role="menu"] > div` and reads coordinates from `[data-index="0"] .mLuXec` (the first menu item, which always contains the clicked lat/long). These selectors are tied to Google Maps' internal DOM structure and may break if Google updates their markup — `#fDahXd` (an older observed element) still exists in the page but is no longer the right target.
 
 - **Mixed language**: Most source files are `.jsx`; `src/pages/Options/Options.tsx` is TypeScript. The webpack config handles both via separate loaders (`ts-loader` for `.ts/.tsx`, `babel-loader` for `.js/.jsx`).
 
