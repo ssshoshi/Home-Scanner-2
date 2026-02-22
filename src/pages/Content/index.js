@@ -27,11 +27,6 @@ if (window.location.hostname === "www.google.com") {
         }
     })
 
-    const sendCoords = (coords) => {
-        chrome.storage.local.set({ coords: coords })
-
-    }
-
     new MutationObserver((mutations) => {
         const menu = document.querySelector('[role="menu"] > div')
         if (!menu) return;
@@ -64,7 +59,7 @@ if (window.location.hostname === "www.google.com") {
                 const long = coord[1].trim();
                 chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long, source: "google" });
                 chrome.runtime.sendMessage({ type: 'open_side_panel' });
-                sendCoords(preSplitCoord)
+                chrome.storage.local.set({ coords: preSplitCoord })
             })
         }
 
@@ -76,7 +71,7 @@ if (window.location.hostname === "www.google.com") {
 
 
 
-const google = `http://maps.google.com/maps?t=k&q=loc:`;
+const google = `https://maps.google.com/maps?t=k&q=loc:`;
 const bing = `https://www.bing.com/maps?where1=`;
 const style = "font-weight: bold; width: 100%; text-align: center;";
 
@@ -86,8 +81,8 @@ if (
 ) {
     window.onload = (e) => {
         const src = document.querySelector(".pdp-map-thumbnail").firstChild.src;
-        let params = new URLSearchParams(src);
-        let haCoord = params.get("center");
+        const params = new URLSearchParams(src);
+        const haCoord = params.get("center");
         let haMap = document.querySelector(".listing-overview__map");
 
 

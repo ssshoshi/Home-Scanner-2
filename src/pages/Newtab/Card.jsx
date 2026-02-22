@@ -118,18 +118,22 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
 
   async function fetchStreetview() {
     const res = await fetch(addrStreetview);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (data.status === "OK") {
-      home.pano_id = data.pano_id;
-      const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
-        home.address
-      )}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
-      setStreetviewImage(streetviewUrl);
-      const cached = cardCache.get(home.zpid) || {};
-      cardCache.set(home.zpid, { ...cached, streetviewUrl });
-      updateHomeDataCache(home.zpid, { streetviewUrl });
-    } else if (home.streetViewMetadataURL) {
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === "OK") {
+        home.pano_id = data.pano_id;
+        const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
+          home.address
+        )}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
+        setStreetviewImage(streetviewUrl);
+        const cached = cardCache.get(home.zpid) || {};
+        cardCache.set(home.zpid, { ...cached, streetviewUrl });
+        updateHomeDataCache(home.zpid, { streetviewUrl });
+        return;
+      }
+    }
+    // Primary failed (HTTP error or status !== "OK") — try secondary or fall back to satImage
+    if (home.streetViewMetadataURL) {
       const res2 = await fetch(home.streetViewMetadataURL);
       if (!res2.ok) {
         const streetviewUrl = home.satImage;
@@ -158,10 +162,10 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   }
 
   useEffect(() => {
-    chrome.storage.local.get('savedHomes', function (result) {
-      var isAlreadySaved = (result.savedHomes || []).some(function (savedHome) {
-        return savedHome.zpid === home.zpid
-      });
+    chrome.storage.local.get('savedHomes', (result) => {
+      const isAlreadySaved = (result.savedHomes || []).some(
+        (savedHome) => savedHome.zpid === home.zpid
+      );
       setHomeSaved(isAlreadySaved);
     });
   }, [home.zpid]);

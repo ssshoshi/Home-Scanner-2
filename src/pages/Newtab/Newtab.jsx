@@ -145,8 +145,8 @@ export default function Album() {
       <CssBaseline />
       <AppBar position="fixed" >
         <Toolbar>
-          <Button>
-            <MapsHomeWorkIcon onClick={() => { setHomes(allHomes.current) }} sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></MapsHomeWorkIcon>
+          <Button onClick={() => setHomes(allHomes.current)}>
+            <MapsHomeWorkIcon sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", color: "white" }} />
           </Button>
           <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
             Home Scanner
