@@ -25,7 +25,7 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 
 
-const HomeCard = ({ home, homes, savedHomes, scrollPosition }) => {
+const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => {
   const theme = useTheme();
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
   const addrStreetview = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${encodeURIComponent(home.address)}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
@@ -316,7 +316,7 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition }) => {
             </Grid>
             <Grid item xs={6} justifyContent="flex-start">
               <Typography variant="body1">
-                <strong>{home.distance}</strong>m away
+                <strong>{home.distance}</strong>{distanceUnit} away
               </Typography>
             </Grid>
 

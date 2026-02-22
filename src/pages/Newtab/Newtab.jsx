@@ -70,16 +70,19 @@ const theme = createTheme({
 
 export default function Album() {
   const [formValue, Form] = useSearch("");
-  const [typeValue, TypeForm] = useType("All")
+  const [typeValue, TypeForm] = useType(['All'])
   const [homes, setHomes] = useState([]);
   const [searchParam] = useState(["address"]);
   const [open, setOpen] = React.useState(false);
   const [allHomes, setAllHomes] = useState([]);
   const [savedHomes, setSavedHomes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [distanceUnit, setDistanceUnit] = useState('m');
 
 
   useEffect(() => {
-    fetchZillow()
+    fetchZillow();
     chrome.storage.onChanged.addListener((e) => {
       if (e.captcha) {
         handleClickOpen()
@@ -87,9 +90,13 @@ export default function Album() {
       if (e.data) {
         chrome.storage.local.get(["source"], response => {
           if (response.source === "google") {
-            fetchZillow()
+            setLoading(true);
+            fetchZillow();
           }
         })
+      }
+      if (e.distanceUnit) {
+        fetchZillow();
       }
       if (e.savedHomes) {
         setSavedHomes(e.savedHomes.newValue)
@@ -98,9 +105,12 @@ export default function Album() {
 
 
     async function fetchZillow() {
-      chrome.storage.local.get(["data", "lat", "long"], response => {
-        console.log(response.data)
-        if (!response.data) return;
+      chrome.storage.local.get(["data", "lat", "long", "distanceUnit"], response => {
+        const unit = response.distanceUnit || 'm';
+        if (!response.data) {
+          setLoading(false);
+          return;
+        }
         window.scrollTo(0, 0)
         response.data.map((home) => {
           if (home.zpid || home.buildingId) {
@@ -113,20 +123,17 @@ export default function Album() {
               home.statusText = home.statusText ? home.statusText : "",
               home.zillowImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? null : home.imgSrc,
               home.satImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? home.imgSrc : null,
-              home.distance = Math.round(
-                getDistance(
-                  response.lat,
-                  response.long,
-                  home.latLong.latitude,
-                  home.latLong.longitude,
-                  "K"
-                ) * 1000
-              )
+              home.distance = unit === 'mi'
+                ? Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude) * 10) / 10
+                : Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude, "K") * 1000)
           }
         })
         response.data.sort((a, b) => a.distance - b.distance);
+        setDistanceUnit(unit);
         setHomes(response.data)
         setAllHomes(response.data)
+        setHasSearched(true);
+        setLoading(false);
       })
     }
   }, [])
@@ -200,7 +207,7 @@ export default function Album() {
         </Toolbar>
       </AppBar>
       <main>
-        <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes} savedHomes={savedHomes}></Homes>
+        <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes} savedHomes={savedHomes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit}></Homes>
       </main>
     </ThemeProvider >
 

@@ -2,12 +2,22 @@ import React, { useState } from "react";
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
 import { styled, alpha } from '@mui/material/styles';
 
+const TYPES = [
+    { value: 'SINGLE_FAMILY', label: 'House' },
+    { value: 'CONDO', label: 'Condo' },
+    { value: 'APARTMENT', label: 'Apartment' },
+    { value: 'TOWNHOUSE', label: 'Townhouse' },
+    { value: 'MULTI_FAMILY', label: 'Multi-family' },
+    { value: 'LOT', label: 'Land' },
+    { value: 'MOBILE', label: 'Mobile Home' },
+];
 
 const Type = styled(FormControl)(({ theme }) => ({
     position: 'relative',
-
     borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.common.white, 0.15),
     '&:hover': {
@@ -23,55 +33,53 @@ const Type = styled(FormControl)(({ theme }) => ({
 
 const StyledSelect = styled(Select)(({ theme }) => ({
     color: 'inherit',
-    '& 	.MuiInput-input': {
-        placeholder: "Type",
-        border: '0',
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create('width'),
-        width: '100%',
-        [theme.breakpoints.up('sm')]: {
-            width: '20ch',
-        },
-    },
+    minWidth: 120,
 }));
 
-const TypeComponent = ({ setState, state }) => (
-    <Type
+const TypeComponent = ({ setState, state }) => {
+    const handleChange = (e) => {
+        const value = e.target.value;
+        if (value[value.length - 1] === 'All') {
+            setState(['All']);
+        } else {
+            const filtered = value.filter(v => v !== 'All');
+            setState(filtered.length === 0 ? ['All'] : filtered);
+        }
+    };
 
-        variant="standard"
-        inputProps={{
-            disableUnderline: true
-        }}>
-        {/* <IconWrapper>
-            <ArrowDropDownIcon />
-        </IconWrapper> */}
-        <StyledSelect
-            sx={{ '.MuiSelect-icon': { color: 'white' } }}
-            disableUnderline
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            placeholder="Type..."
-            inputProps={{
-                'aria-label': 'type',
-            }}
-        >
-            <MenuItem value={'All'}>All</MenuItem>
-            <MenuItem value={'SINGLE_FAMILY'}>House</MenuItem>
-            <MenuItem value={'CONDO'}>Condo</MenuItem>
-        </StyledSelect>
-    </Type>
-);
-
+    return (
+        <Type variant="standard">
+            <StyledSelect
+                multiple
+                disableUnderline
+                sx={{ '.MuiSelect-icon': { color: 'white' } }}
+                value={state}
+                onChange={handleChange}
+                renderValue={(selected) => {
+                    if (selected.includes('All')) return 'All Types';
+                    return selected.map(v => TYPES.find(t => t.value === v)?.label).join(', ');
+                }}
+            >
+                <MenuItem value="All">
+                    <Checkbox checked={state.includes('All')} />
+                    <ListItemText primary="All" />
+                </MenuItem>
+                {TYPES.map((type) => (
+                    <MenuItem key={type.value} value={type.value}>
+                        <Checkbox checked={state.includes(type.value)} />
+                        <ListItemText primary={type.label} />
+                    </MenuItem>
+                ))}
+            </StyledSelect>
+        </Type>
+    );
+};
 
 export default function useType(defaultState) {
     const [state, setState] = useState(defaultState);
-
     return [
         state,
         <TypeComponent state={state} setState={setState} />,
         setState
     ];
 }
-
