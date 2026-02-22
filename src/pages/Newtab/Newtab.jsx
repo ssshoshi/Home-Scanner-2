@@ -22,15 +22,17 @@ import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
+import InputBase from '@mui/material/InputBase';
+import PinDropIcon from '@mui/icons-material/PinDrop';
 
 const getDistance = (lat1, lon1, lat2, lon2, unit) => {
-  if (lat1 == lat2 && lon1 == lon2) {
+  if (lat1 === lat2 && lon1 === lon2) {
     return 0;
   } else {
-    let radlat1 = (Math.PI * lat1) / 180;
-    let radlat2 = (Math.PI * lat2) / 180;
-    let theta = lon1 - lon2;
-    let radtheta = (Math.PI * theta) / 180;
+    const radlat1 = (Math.PI * lat1) / 180;
+    const radlat2 = (Math.PI * lat2) / 180;
+    const theta = lon1 - lon2;
+    const radtheta = (Math.PI * theta) / 180;
     let dist =
       Math.sin(radlat1) * Math.sin(radlat2) +
       Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
@@ -40,11 +42,17 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
     dist = Math.acos(dist);
     dist = (dist * 180) / Math.PI;
     dist = dist * 60 * 1.1515;
-    if (unit == "K") {
+    if (unit === "K") {
       dist = dist * 1.609344;
     }
     return dist;
   }
+};
+
+const verifyCoords = (lat, lon) => {
+  const ck_lat = /^(-?[1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
+  const ck_lon = /^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
+  return ck_lat.test(lat) && ck_lon.test(lon);
 };
 
 const theme = createTheme();
@@ -73,7 +81,20 @@ export default function Album() {
   const [minBeds, setMinBeds] = useState(0);
   const [maxPrice, setMaxPrice] = useState(-1);
   const [isSavedView, setIsSavedView] = useState(false);
+  const [coordInput, setCoordInput] = useState('');
+  const [zillowError, setZillowError] = useState(false);
 
+  const handleCoordSearch = () => {
+    if (!coordInput.includes(',')) return;
+    const [rawLat, rawLon] = coordInput.split(',');
+    const lat = rawLat.trim();
+    const lon = rawLon.trim();
+    if (verifyCoords(lat, lon)) {
+      setLoading(true);
+      setZillowError(false);
+      chrome.runtime.sendMessage({ message: 'verified', lat, long: lon });
+    }
+  };
 
   useEffect(() => {
     fetchZillow();
@@ -83,6 +104,7 @@ export default function Album() {
       }
       if (e.data) {
         setLoading(true);
+        setZillowError(false);
         fetchZillow();
       }
       if (e.distanceUnit) {
@@ -95,9 +117,15 @@ export default function Album() {
     return () => chrome.storage.onChanged.removeListener(storageListener);
 
     async function fetchZillow() {
-      chrome.storage.local.get(["data", "lat", "long", "distanceUnit", "homeDataCache"], response => {
+      chrome.storage.local.get(["data", "lat", "long", "distanceUnit", "homeDataCache", "zillowError"], response => {
         const unit = response.distanceUnit || 'm';
         const homeDataCache = response.homeDataCache || {};
+        if (response.zillowError) {
+          setZillowError(true);
+          setLoading(false);
+          return;
+        }
+        setZillowError(false);
         if (!response.data) {
           setLoading(false);
           return;
@@ -106,12 +134,12 @@ export default function Album() {
         response.data.forEach((home) => {
           if (home.zpid || home.buildingId) {
             home.address = home.address === undefined ? "--" : home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " ");
-            home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType;
-            home.price = home.priceLabel ? home.priceLabel : "--";
-            home.area = home.area ? home.area : "--";
-            home.beds = home.beds ? home.beds : "--";
-            home.baths = home.baths ? home.baths : "--";
-            home.statusText = home.statusText ? home.statusText : "";
+            home.homeType = home.buildingId ? "APARTMENT" : home.hdpData?.homeInfo?.homeType ?? "--";
+            home.price = home.priceLabel || "--";
+            home.area = home.area || "--";
+            home.beds = home.beds || "--";
+            home.baths = home.baths || "--";
+            home.statusText = home.statusText || "";
             home.zillowImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? null : home.imgSrc;
             home.satImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? home.imgSrc : null;
             home.distance = unit === 'mi'
@@ -167,6 +195,28 @@ export default function Album() {
           <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
             Home Scanner
           </Typography>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255,255,255,0.15)',
+            borderRadius: 4,
+            padding: '2px 8px',
+            marginRight: 8,
+          }}>
+            <PinDropIcon sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 20, mr: 0.5 }} />
+            <InputBase
+              placeholder="lat, long"
+              value={coordInput}
+              onChange={(e) => setCoordInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCoordSearch()}
+              sx={{
+                color: 'white',
+                fontSize: '0.875rem',
+                '& input': { padding: '4px 0', width: 130 },
+                '& input::placeholder': { color: 'rgba(255,255,255,0.5)', opacity: 1 },
+              }}
+            />
+          </div>
           {isSavedView && (
             <Chip
               label="Saved"
@@ -241,7 +291,7 @@ export default function Album() {
         </Toolbar>
       </AppBar>
       <main>
-        <Homes typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit} sortValue={sortValue} minBeds={minBeds} maxPrice={maxPrice}></Homes>
+        <Homes typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit} sortValue={sortValue} minBeds={minBeds} maxPrice={maxPrice} zillowError={zillowError}></Homes>
       </main>
     </ThemeProvider >
 

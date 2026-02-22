@@ -63,10 +63,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     fetchZillowData(body).then(zillowData => {
       const data = zillowData.cat1.searchResults.mapResults
-      chrome.storage.local.set({ data: data, lat: lat, long: long, source: "google" })
+      chrome.storage.local.set({ data: data, lat: lat, long: long, source: "google", zillowError: false })
     }).catch(err => {
       console.error('Zillow fetch failed:', err)
-      chrome.storage.local.set({ data: [], lat: lat, long: long, source: "google" })
+      chrome.storage.local.set({ data: [], lat: lat, long: long, source: "google", zillowError: true })
     })
     return true;
   }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './Options.css';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Typography from '@mui/material/Typography';

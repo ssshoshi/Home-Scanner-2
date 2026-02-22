@@ -28,8 +28,7 @@
       "matches": [
         "*://*.homeaway.com/*",
         "*://*.vrbo.com/*",
-        "*://*.google.com/maps*",
-        "*://*.google.com/maps/place/*"
+        "*://*.google.com/maps*"
       ],
       "js": [
         "contentScript.bundle.js"
@@ -52,19 +51,19 @@
       "all_frames": true
     }
   ],
-  "devtools_page": "devtools.html",
   "web_accessible_resources": [
     {
       "resources": [
         "content.styles.css",
         "homescanner128.png",
         "homescanner32.png",
-        "newtab.html",
-        "/src/assets/img/no-photo.png"
+        "newtab.html"
       ],
       "matches": [
-        "https://*/*",
-        "http://*/*"
+        "*://*.google.com/*",
+        "*://*.homeaway.com/*",
+        "*://*.vrbo.com/*",
+        "*://*.hostcompliance.com/*"
       ]
     }
   ]

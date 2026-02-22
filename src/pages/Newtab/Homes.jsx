@@ -43,7 +43,7 @@ const comparators = {
     },
 };
 
-const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearched, distanceUnit, sortValue, minBeds, maxPrice }) => {
+const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearched, distanceUnit, sortValue, minBeds, maxPrice, zillowError }) => {
     function search(homes) {
         const query = formValue.toLowerCase();
         return homes.filter((home) =>
@@ -73,6 +73,13 @@ const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearch
 
     return (
         <Container sx={{ pt: 15, pb: 8 }} maxWidth="xl">
+            {!loading && sorted.length > 0 && (
+                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1, mt: -1 }}>
+                    {sorted.length === homes.length
+                        ? `${sorted.length} results`
+                        : `${sorted.length} of ${homes.length} results`}
+                </Typography>
+            )}
             <Grid container spacing={4} sx={{ mt: 0 }}>
                 {loading ? (
                     Array.from({ length: 6 }).map((_, i) => (
@@ -88,7 +95,12 @@ const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearch
                     ))
                 )}
             </Grid>
-            {!loading && hasSearched && sorted.length === 0 && (
+            {!loading && zillowError && (
+                <Typography variant="body1" sx={{ textAlign: 'center', mt: 8, color: 'error.main' }}>
+                    Zillow request failed — try again.
+                </Typography>
+            )}
+            {!loading && !zillowError && hasSearched && sorted.length === 0 && (
                 <Typography variant="body1" sx={{ textAlign: 'center', mt: 8, color: 'text.secondary' }}>
                     No results found for this location.
                 </Typography>

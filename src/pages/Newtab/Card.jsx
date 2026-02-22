@@ -63,6 +63,8 @@ function updateHomeDataCache(zpid, patch) {
   }, 100);
 }
 
+const STREETVIEW_KEY = 'AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ';
+
 const toCamel = (string) =>
   string.toLowerCase().replace(/(?:_| |\b)(\w)/g, ($1) =>
     $1.toUpperCase().replace("_", " ")
@@ -71,7 +73,7 @@ const toCamel = (string) =>
 const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   const theme = useTheme();
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
-  const addrStreetview = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${encodeURIComponent(home.address)}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
+  const addrStreetview = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${encodeURIComponent(home.address)}&size=800x600&key=${STREETVIEW_KEY}`;
   const [realtorLink, setRealtorLink] = useState("")
   const [carouselImages, setCarouselImages] = useState([])
   const [streetviewImage, setStreetviewImage] = useState("")
@@ -90,16 +92,20 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   };
 
   async function fetchData() {
-    const res = await fetch(url);
-    if (!res.ok) return;
-    const data = await res.json();
-    const match = (data.autocomplete || []).find(i => i.area_type === "address");
-    if (match) {
-      setRealtorLink(match.mpr_id);
-      home.realtorLink = match.mpr_id;
-      const cached = cardCache.get(home.zpid) || {};
-      cardCache.set(home.zpid, { ...cached, realtorLink: match.mpr_id });
-      updateHomeDataCache(home.zpid, { realtorLink: match.mpr_id });
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const data = await res.json();
+      const match = (data.autocomplete || []).find(i => i.area_type === "address");
+      if (match) {
+        setRealtorLink(match.mpr_id);
+        home.realtorLink = match.mpr_id;
+        const cached = cardCache.get(home.zpid) || {};
+        cardCache.set(home.zpid, { ...cached, realtorLink: match.mpr_id });
+        updateHomeDataCache(home.zpid, { realtorLink: match.mpr_id });
+      }
+    } catch (err) {
+      console.error('fetchData failed:', err);
     }
   }
 
@@ -116,53 +122,57 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   }
 
   async function fetchStreetview() {
-    const res = await fetch(addrStreetview);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.status === "OK") {
-        home.pano_id = data.pano_id;
-        const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
-          home.address
-        )}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
-        setStreetviewImage(streetviewUrl);
-        const cached = cardCache.get(home.zpid) || {};
-        cardCache.set(home.zpid, { ...cached, streetviewUrl });
-        updateHomeDataCache(home.zpid, { streetviewUrl });
-        return;
+    try {
+      const res = await fetch(addrStreetview);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === "OK") {
+          home.pano_id = data.pano_id;
+          const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
+            home.address
+          )}&size=800x600&key=${STREETVIEW_KEY}`;
+          setStreetviewImage(streetviewUrl);
+          const cached = cardCache.get(home.zpid) || {};
+          cardCache.set(home.zpid, { ...cached, streetviewUrl });
+          updateHomeDataCache(home.zpid, { streetviewUrl });
+          return;
+        }
       }
-    }
-    // Primary failed (HTTP error or status !== "OK") — try secondary or fall back to satImage
-    if (home.streetViewMetadataURL) {
-      const res2 = await fetch(home.streetViewMetadataURL);
-      if (!res2.ok) {
+      // Primary failed (HTTP error or status !== "OK") — try secondary or fall back to satImage
+      if (home.streetViewMetadataURL) {
+        const res2 = await fetch(home.streetViewMetadataURL);
+        if (!res2.ok) {
+          const streetviewUrl = home.satImage;
+          setStreetviewImage(streetviewUrl);
+          const cached = cardCache.get(home.zpid) || {};
+          cardCache.set(home.zpid, { ...cached, streetviewUrl });
+          updateHomeDataCache(home.zpid, { streetviewUrl });
+          return;
+        }
+        const data2 = await res2.json();
+        if (data2.status === "OK") {
+          home.pano_id = data2.pano_id;
+          const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${home.latLong.latitude},${home.latLong.longitude}&size=800x600&key=${STREETVIEW_KEY}`;
+          setStreetviewImage(streetviewUrl);
+          const cached = cardCache.get(home.zpid) || {};
+          cardCache.set(home.zpid, { ...cached, streetviewUrl });
+          updateHomeDataCache(home.zpid, { streetviewUrl });
+        } else {
+          const streetviewUrl = home.satImage;
+          setStreetviewImage(streetviewUrl);
+          const cached = cardCache.get(home.zpid) || {};
+          cardCache.set(home.zpid, { ...cached, streetviewUrl });
+          updateHomeDataCache(home.zpid, { streetviewUrl });
+        }
+      } else if (home.satImage) {
         const streetviewUrl = home.satImage;
         setStreetviewImage(streetviewUrl);
         const cached = cardCache.get(home.zpid) || {};
         cardCache.set(home.zpid, { ...cached, streetviewUrl });
         updateHomeDataCache(home.zpid, { streetviewUrl });
-        return;
       }
-      const data2 = await res2.json();
-      if (data2.status === "OK") {
-        home.pano_id = data2.pano_id;
-        const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${home.latLong.latitude},${home.latLong.longitude}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
-        setStreetviewImage(streetviewUrl);
-        const cached = cardCache.get(home.zpid) || {};
-        cardCache.set(home.zpid, { ...cached, streetviewUrl });
-        updateHomeDataCache(home.zpid, { streetviewUrl });
-      } else {
-        const streetviewUrl = home.satImage;
-        setStreetviewImage(streetviewUrl);
-        const cached = cardCache.get(home.zpid) || {};
-        cardCache.set(home.zpid, { ...cached, streetviewUrl });
-        updateHomeDataCache(home.zpid, { streetviewUrl });
-      }
-    } else if (home.satImage) {
-      const streetviewUrl = home.satImage;
-      setStreetviewImage(streetviewUrl);
-      const cached = cardCache.get(home.zpid) || {};
-      cardCache.set(home.zpid, { ...cached, streetviewUrl });
-      updateHomeDataCache(home.zpid, { streetviewUrl });
+    } catch (err) {
+      console.error('fetchStreetview failed:', err);
     }
   }
 
