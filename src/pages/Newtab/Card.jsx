@@ -39,6 +39,7 @@ const formatDistance = (distance, unit) => {
 const cardCache = new Map();
 
 // Batch persistent cache writes — multiple calls within 100ms merge into one storage write
+const MAX_CACHE_ENTRIES = 500;
 let cacheWriteTimer = null;
 let pendingCachePatch = {};
 function updateHomeDataCache(zpid, patch) {
@@ -51,6 +52,11 @@ function updateHomeDataCache(zpid, patch) {
       const cache = result.homeDataCache;
       for (const [id, data] of Object.entries(pending)) {
         cache[id] = { ...cache[id], ...data };
+      }
+      // Evict oldest entries when over the limit
+      const keys = Object.keys(cache);
+      if (keys.length > MAX_CACHE_ENTRIES) {
+        keys.slice(0, keys.length - MAX_CACHE_ENTRIES).forEach(k => delete cache[k]);
       }
       chrome.storage.local.set({ homeDataCache: cache });
     });
@@ -85,8 +91,9 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
 
   async function fetchData() {
     const res = await fetch(url);
+    if (!res.ok) return;
     const data = await res.json();
-    for (let i of data.autocomplete) {
+    for (let i of (data.autocomplete || [])) {
       if (i.area_type === "address") {
         setRealtorLink(i.mpr_id);
         home.realtorLink = i.mpr_id;
@@ -111,6 +118,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
 
   async function fetchStreetview() {
     const res = await fetch(addrStreetview);
+    if (!res.ok) return;
     const data = await res.json();
     if (data.status === "OK") {
       home.pano_id = data.pano_id;
@@ -123,6 +131,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
       updateHomeDataCache(home.zpid, { streetviewUrl });
     } else if (home.streetViewMetadataURL) {
       const res2 = await fetch(home.streetViewMetadataURL);
+      if (!res2.ok) return;
       const data2 = await res2.json();
       if (data2.status === "OK") {
         home.pano_id = data2.pano_id;
@@ -154,7 +163,6 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
     });
   }, [home.zpid]);
 
-  const image = streetviewImage;
   const dist = formatDistance(home.distance, distanceUnit);
 
   return (
@@ -252,7 +260,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
               </div>) :
             <CardMedia
               component="img"
-              image={image}
+              image={streetviewImage}
             />
           }
 

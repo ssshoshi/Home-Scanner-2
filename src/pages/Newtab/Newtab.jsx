@@ -19,7 +19,6 @@ import MapIcon from '@mui/icons-material/Map';
 import Tooltip from '@mui/material/Tooltip'
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
 
-// calculate distance from searchpoint
 const getDistance = (lat1, lon1, lat2, lon2, unit) => {
   if (lat1 == lat2 && lon1 == lon2) {
     return 0;
@@ -40,9 +39,6 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
     if (unit == "K") {
       dist = dist * 1.609344;
     }
-    if (unit == "N") {
-      dist = dist * 0.8684;
-    }
     return dist;
   }
 };
@@ -56,7 +52,7 @@ export default function Album() {
   const [formValue, setFormValue] = useState('');
   const [typeValue, setTypeValue] = useState(['All']);
   const [homes, setHomes] = useState([]);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const allHomes = useRef([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -70,12 +66,8 @@ export default function Album() {
         handleClickOpen()
       }
       if (e.data) {
-        chrome.storage.local.get(["source"], response => {
-          if (response.source === "google") {
-            setLoading(true);
-            fetchZillow();
-          }
-        })
+        setLoading(true);
+        fetchZillow();
       }
       if (e.distanceUnit) {
         fetchZillow();
@@ -97,18 +89,18 @@ export default function Album() {
         window.scrollTo(0, 0)
         response.data.forEach((home) => {
           if (home.zpid || home.buildingId) {
-            home.address = home.address === undefined ? "--" : home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
-              home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
-              home.price = home.priceLabel ? home.priceLabel : "--",
-              home.area = home.area ? home.area : "--",
-              home.beds = home.beds ? home.beds : "--",
-              home.baths = home.baths ? home.baths : "--",
-              home.statusText = home.statusText ? home.statusText : "",
-              home.zillowImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? null : home.imgSrc,
-              home.satImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? home.imgSrc : null,
-              home.distance = unit === 'mi'
-                ? Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude) * 10000) / 10000
-                : Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude, "K") * 1000)
+            home.address = home.address === undefined ? "--" : home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " ");
+            home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType;
+            home.price = home.priceLabel ? home.priceLabel : "--";
+            home.area = home.area ? home.area : "--";
+            home.beds = home.beds ? home.beds : "--";
+            home.baths = home.baths ? home.baths : "--";
+            home.statusText = home.statusText ? home.statusText : "";
+            home.zillowImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? null : home.imgSrc;
+            home.satImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? home.imgSrc : null;
+            home.distance = unit === 'mi'
+              ? Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude) * 10000) / 10000
+              : Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude, "K") * 1000);
             // Hydrate from persistent cache so cards don't need to re-fetch
             const cached = homeDataCache[home.zpid];
             if (cached) Object.assign(home, cached);
