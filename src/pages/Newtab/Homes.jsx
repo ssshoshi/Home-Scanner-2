@@ -20,17 +20,14 @@ const SkeletonCard = () => (
     </Card>
 );
 
-const Homes = ({ homes, typeValue, searchParam, formValue, scrollPosition, loading, hasSearched, distanceUnit }) => {
+const SEARCH_PARAM = ["address"];
+
+const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearched, distanceUnit }) => {
     function search(homes) {
-        return homes.filter((home) => {
-            return searchParam.some((newItem) => {
-                return (
-                    (home[newItem] || '')
-                        .toLowerCase()
-                        .indexOf(formValue.toLowerCase()) > -1
-                );
-            });
-        });
+        const query = formValue.toLowerCase();
+        return homes.filter((home) =>
+            SEARCH_PARAM.some((key) => (home[key] || '').toLowerCase().indexOf(query) > -1)
+        );
     }
 
     function type(homes) {

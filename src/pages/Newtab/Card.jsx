@@ -9,14 +9,13 @@ import Link from '@mui/material/Link';
 import { LazyLoadComponent } from 'react-lazy-load-image-component';
 import Grid from "@mui/material/Grid";
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import SwipeableViews from 'react-swipeable-views';
 import MobileStepper from '@mui/material/MobileStepper';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import { useTheme } from '@mui/material/styles';
 
 
 
@@ -158,6 +157,12 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
         cardCache.set(home.zpid, { ...cached, streetviewUrl });
         updateHomeDataCache(home.zpid, { streetviewUrl });
       }
+    } else if (home.satImage) {
+      const streetviewUrl = home.satImage;
+      setStreetviewImage(streetviewUrl);
+      const cached = cardCache.get(home.zpid) || {};
+      cardCache.set(home.zpid, { ...cached, streetviewUrl });
+      updateHomeDataCache(home.zpid, { streetviewUrl });
     }
   }
 
@@ -209,7 +214,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
         sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
         <div style={{ position: "relative" }}>
-          {carouselImages.length >= 1 ?
+          {carouselImages.length > 0 ?
             (
               <div >
                 <MobileStepper style={{ position: 'absolute', bottom: 0, padding: '0px', width: '100%' }}
@@ -294,10 +299,10 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
                 variant="contained"
                 size="small"
                 onClick={() => {
-                  chrome.storage.local.get({ savedHomes: [] }, function (result) {
-                    const isAlreadySaved = result.savedHomes.some(function (savedHome) {
-                      return savedHome.zpid === home.zpid;
-                    });
+                  chrome.storage.local.get({ savedHomes: [] }, (result) => {
+                    const isAlreadySaved = result.savedHomes.some((savedHome) =>
+                      savedHome.zpid === home.zpid
+                    );
 
                     if (!isAlreadySaved) {
                       result.savedHomes.push(home);

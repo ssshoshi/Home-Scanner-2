@@ -44,8 +44,6 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
   }
 };
 
-const SEARCH_PARAM = ["address"];
-
 const theme = createTheme();
 
 
@@ -177,7 +175,7 @@ export default function Album() {
         </Toolbar>
       </AppBar>
       <main>
-        <Homes searchParam={SEARCH_PARAM} typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit}></Homes>
+        <Homes typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit}></Homes>
       </main>
     </ThemeProvider >
 
