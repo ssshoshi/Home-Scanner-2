@@ -59,7 +59,7 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition }) => {
     for (let i of res.data.autocomplete) {
       if (i.area_type === "address") {
         setRealtorLink(i.mpr_id);
-        home.realtorLink = realtorLink;
+        home.realtorLink = i.mpr_id;
         let realtorURL = `https://www.realtor.com/realestateandhomes-detail/M${i.mpr_id}`;
       }
     }

@@ -100,6 +100,7 @@ export default function Album() {
     async function fetchZillow() {
       chrome.storage.local.get(["data", "lat", "long"], response => {
         console.log(response.data)
+        if (!response.data) return;
         window.scrollTo(0, 0)
         response.data.map((home) => {
           if (home.zpid || home.buildingId) {
