@@ -18,6 +18,7 @@ const theme = createTheme();
 const Popup = () => {
   const [input, setInput] = useState('');
   const [error, setError] = useState('Search Coordinates');
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = () => {
     if (!input.includes(',')) {
@@ -29,8 +30,10 @@ const Popup = () => {
     const lon = rawLon.trim();
     if (verifyCoords(lat, lon)) {
       setError('Search Coordinates');
+      setLoading(true);
       chrome.runtime.sendMessage({ message: 'verified', lat, long: lon }, () => {
         chrome.runtime.sendMessage({ type: 'open_side_panel' });
+        setLoading(false);
       });
     } else {
       setError('Input must be coordinates e.g. 47.595152, -122.331639');
@@ -40,20 +43,25 @@ const Popup = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Typography variant="h4" color="blue" noWrap>
-        Home Scanner
-      </Typography>
-      <Typography variant="h6" color="black" noWrap>
-        {error}
-      </Typography>
-      <TextField
-        label="Coordinates"
-        variant="standard"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-      />
-      <Button variant="contained" onClick={handleSearch}>Search</Button>
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '260px' }}>
+        <Typography variant="h4" color="primary" noWrap>
+          Home Scanner
+        </Typography>
+        <Typography variant="body2" color={error === 'Search Coordinates' ? 'text.secondary' : 'error'} noWrap>
+          {error}
+        </Typography>
+        <TextField
+          label="Coordinates"
+          variant="standard"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          disabled={loading}
+        />
+        <Button variant="contained" onClick={handleSearch} disabled={loading}>
+          {loading ? 'Searching…' : 'Search'}
+        </Button>
+      </div>
     </ThemeProvider>
   );
 };

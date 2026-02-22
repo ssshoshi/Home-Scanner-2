@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AppBar from '@mui/material/AppBar';
 import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -47,6 +47,8 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
   }
 };
 
+const SEARCH_PARAM = ["address"];
+
 const theme = createTheme({
   overrides: {
     MuiOutlinedInput: {
@@ -72,9 +74,8 @@ export default function Album() {
   const [formValue, Form] = useSearch("");
   const [typeValue, TypeForm] = useType(['All'])
   const [homes, setHomes] = useState([]);
-  const [searchParam] = useState(["address"]);
   const [open, setOpen] = React.useState(false);
-  const [allHomes, setAllHomes] = useState([]);
+  const allHomes = useRef([]);
   const [savedHomes, setSavedHomes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -140,8 +141,8 @@ export default function Album() {
         })
         response.data.sort((a, b) => a.distance - b.distance);
         setDistanceUnit(unit);
+        allHomes.current = response.data;
         setHomes(response.data)
-        setAllHomes(response.data)
         setHasSearched(true);
         setLoading(false);
       })
@@ -185,7 +186,7 @@ export default function Album() {
       <AppBar position="fixed" >
         <Toolbar>
           <Button>
-            <MapsHomeWorkIcon onClick={() => { setHomes(allHomes) }} sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></MapsHomeWorkIcon>
+            <MapsHomeWorkIcon onClick={() => { setHomes(allHomes.current) }} sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></MapsHomeWorkIcon>
           </Button>
           <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
             Home Scanner
@@ -216,7 +217,7 @@ export default function Album() {
         </Toolbar>
       </AppBar>
       <main>
-        <Homes searchParam={searchParam} typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit}></Homes>
+        <Homes searchParam={SEARCH_PARAM} typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit}></Homes>
       </main>
     </ThemeProvider >
 
