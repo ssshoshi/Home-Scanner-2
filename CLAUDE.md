@@ -56,6 +56,8 @@ Each page compiles to a separate bundle:
 
 - **Mixed language**: Most source files are `.jsx`; `src/pages/Options/Options.tsx` is TypeScript. The webpack config handles both via separate loaders (`ts-loader` for `.ts/.tsx`, `babel-loader` for `.js/.jsx`).
 
+- **Dependency overrides**: `package.json` uses npm `overrides` to force safe transitive dependency versions (`minimatch ^10.2.1`, `@babel/runtime ^7.26.10`). When adding new dependencies, check that they are compatible with these pinned versions. One unfixable moderate vulnerability remains: `@babel/runtime < 7.26.10` bundled inside `react-swipeable-views`' own sub-packages — the npm-offered fix is a breaking downgrade of that package, so it is intentionally left.
+
 ### Manifest Permissions
 
 - `sidePanel`, `storage`, `tabs`, `scripting`
