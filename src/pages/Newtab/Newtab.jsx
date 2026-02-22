@@ -6,8 +6,8 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Homes from "./Homes";
-import useSearch from "./SearchForm";
-import useType from "./Type"
+import SearchForm from "./SearchForm";
+import TypeFilter from "./Type"
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -71,12 +71,11 @@ const theme = createTheme({
 
 
 export default function Album() {
-  const [formValue, Form] = useSearch("");
-  const [typeValue, TypeForm] = useType(['All'])
+  const [formValue, setFormValue] = useState('');
+  const [typeValue, setTypeValue] = useState(['All']);
   const [homes, setHomes] = useState([]);
   const [open, setOpen] = React.useState(false);
   const allHomes = useRef([]);
-  const [savedHomes, setSavedHomes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [distanceUnit, setDistanceUnit] = useState('m');
@@ -84,9 +83,6 @@ export default function Album() {
 
   useEffect(() => {
     fetchZillow();
-    chrome.storage.local.get({ savedHomes: [] }, (result) => {
-      setSavedHomes(result.savedHomes);
-    });
     const storageListener = (e) => {
       if (e.captcha) {
         handleClickOpen()
@@ -101,9 +97,6 @@ export default function Album() {
       }
       if (e.distanceUnit) {
         fetchZillow();
-      }
-      if (e.savedHomes) {
-        setSavedHomes(e.savedHomes.newValue)
       }
     };
     chrome.storage.onChanged.addListener(storageListener);
@@ -212,8 +205,8 @@ export default function Album() {
               <OpenInNew sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></OpenInNew>
             </Button>
           </Tooltip>
-          {TypeForm}
-          {Form}
+          <TypeFilter value={typeValue} onChange={setTypeValue} />
+          <SearchForm value={formValue} onChange={setFormValue} />
         </Toolbar>
       </AppBar>
       <main>

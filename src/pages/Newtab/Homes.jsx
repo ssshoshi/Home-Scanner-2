@@ -25,7 +25,7 @@ const Homes = ({ homes, typeValue, searchParam, formValue, scrollPosition, loadi
         return homes.filter((home) => {
             return searchParam.some((newItem) => {
                 return (
-                    home[newItem]
+                    (home[newItem] || '')
                         .toLowerCase()
                         .indexOf(formValue.toLowerCase()) > -1
                 );
@@ -53,7 +53,7 @@ const Homes = ({ homes, typeValue, searchParam, formValue, scrollPosition, loadi
                     ))
                 ) : (
                     filtered.map((home, index) => (
-                        <Grid item key={index + home.address} xs={12} sm={6} md={4}>
+                        <Grid item key={home.zpid || home.buildingId || index} xs={12} sm={6} md={4}>
                             <HomeCard scrollPosition={scrollPosition} home={home} distanceUnit={distanceUnit}></HomeCard>
                         </Grid>
                     ))

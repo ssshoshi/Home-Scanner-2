@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
@@ -32,7 +32,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
@@ -42,27 +41,18 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-// Define the FormComponent outside of your useForm hook
-const SearchComponent = ({ setState, state }) => (
-  <Search key="search1">
+const SearchForm = ({ value, onChange }) => (
+  <Search>
     <SearchIconWrapper>
       <SearchIcon />
     </SearchIconWrapper>
     <StyledInputBase
-      value={state}
-      onChange={(e) => setState(e.target.value)}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
       placeholder="Search…"
       inputProps={{ 'aria-label': 'search' }}
     />
   </Search>
 );
 
-export default function useSearch(defaultState) {
-  const [state, setState] = useState(defaultState);
-
-  return [
-    state,
-    <SearchComponent state={state} setState={setState} />,
-    setState
-  ];
-}
+export default SearchForm;

@@ -14,14 +14,12 @@ import { styled } from '@mui/material/styles';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import SwipeableViews from 'react-swipeable-views';
-import { autoPlay } from 'react-swipeable-views-utils';
 import MobileStepper from '@mui/material/MobileStepper';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { useTheme } from '@mui/material/styles';
 
 
-const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const StyledCard = styled(Card)(() => ({
   transition: "transform 0.2s ease",
@@ -41,14 +39,29 @@ const formatDistance = (distance, unit) => {
 // Session cache: survives re-renders and filter changes within the same panel session
 const cardCache = new Map();
 
-// Write fetched data into persistent storage cache keyed by zpid
+// Batch persistent cache writes — multiple calls within 100ms merge into one storage write
+let cacheWriteTimer = null;
+let pendingCachePatch = {};
 function updateHomeDataCache(zpid, patch) {
-  chrome.storage.local.get({ homeDataCache: {} }, (result) => {
-    const cache = result.homeDataCache;
-    cache[zpid] = { ...cache[zpid], ...patch };
-    chrome.storage.local.set({ homeDataCache: cache });
-  });
+  pendingCachePatch[zpid] = { ...pendingCachePatch[zpid], ...patch };
+  clearTimeout(cacheWriteTimer);
+  cacheWriteTimer = setTimeout(() => {
+    const pending = pendingCachePatch;
+    pendingCachePatch = {};
+    chrome.storage.local.get({ homeDataCache: {} }, (result) => {
+      const cache = result.homeDataCache;
+      for (const [id, data] of Object.entries(pending)) {
+        cache[id] = { ...cache[id], ...data };
+      }
+      chrome.storage.local.set({ homeDataCache: cache });
+    });
+  }, 100);
 }
+
+const toCamel = (string) =>
+  string.toLowerCase().replace(/(?:_| |\b)(\w)/g, ($1) =>
+    $1.toUpperCase().replace("_", " ")
+  );
 
 const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   const theme = useTheme();
@@ -58,10 +71,8 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   const [carouselImages, setCarouselImages] = useState([])
   const [streetviewImage, setStreetviewImage] = useState("")
   const [clicked, setClicked] = useState(false)
-  const [btnClicked, setBtnClicked] = useState(false)
   const [homeSaved, setHomeSaved] = useState(false)
   const [activeStep, setActiveStep] = useState(0);
-
   const handleNext = () => {
     setActiveStep((prevActiveStep) =>
       prevActiveStep === carouselImages.length - 1 ? 0 : prevActiveStep + 1
@@ -113,7 +124,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
     } else if (home.streetViewMetadataURL) {
       const response2 = await axios.get(home.streetViewMetadataURL)
       if (response2.data.status === "OK") {
-        home.pano_id = response.data.pano_id
+        home.pano_id = response2.data.pano_id
         const streetviewUrl = `https://maps.googleapis.com/maps/api/streetview?location=${home.latLong.latitude},${home.latLong.longitude}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
         setStreetviewImage(streetviewUrl);
         const cached = cardCache.get(home.zpid) || {};
@@ -129,14 +140,8 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
     }
   }
 
-  const toCamel = (string) => {
-    return string.toLowerCase().replace(/(?:_| |\b)(\w)/g, ($1) => {
-      return $1.toUpperCase().replace("_", " ");
-    });
-  }
-
   const sendAddress = (address) => {
-    chrome.storage.local.set({ beenClicked: btnClicked, address: address })
+    chrome.storage.local.set({ address })
   }
 
   useEffect(() => {
@@ -155,6 +160,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
   }, [clicked, streetviewImage]);
 
   const image = streetviewImage;
+  const dist = formatDistance(home.distance, distanceUnit);
 
   return (
     <LazyLoadComponent scrollPosition={scrollPosition} threshold={1000} width={600} height={600}
@@ -232,9 +238,10 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
                     </Button>
                   }
                 />
-                <AutoPlaySwipeableViews
+                <SwipeableViews
                   axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
                   index={activeStep}
+                  onChangeIndex={(step) => setActiveStep(step)}
                 >
                   {carouselImages.map((step, index) => (
                     <div key={index}>
@@ -249,7 +256,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
                       ) : null}
                     </div>
                   ))}
-                </AutoPlaySwipeableViews>
+                </SwipeableViews>
               </div>) :
             <CardMedia
               component="img"
@@ -266,7 +273,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
               sx={{ backgroundColor: '#1976d2', minWidth: '0px', ml: 1, alignContent: 'flex-start' }}
               variant="contained"
               size="small"
-              onClick={() => { setBtnClicked(!btnClicked); sendAddress(home.address); }}
+              onClick={() => { sendAddress(home.address); }}
             >
               <FmdGoodIcon style={{ color: '#ea4335' }} />
             </Button>
@@ -339,7 +346,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
             </Grid>
             <Grid item xs={6} justifyContent="flex-start">
               <Typography variant="body1">
-                <strong>{formatDistance(home.distance, distanceUnit).value}</strong>{formatDistance(home.distance, distanceUnit).unit} away
+                <strong>{dist.value}</strong>{dist.unit} away
               </Typography>
             </Grid>
 

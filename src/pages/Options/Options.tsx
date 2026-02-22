@@ -25,7 +25,7 @@ const Options: React.FC = () => {
       <Typography variant="h5" gutterBottom>Settings</Typography>
       <FormControlLabel
         control={<Switch checked={useMiles} onChange={handleChange} />}
-        label={`Distance: ${useMiles ? 'Miles' : 'Meters'}`}
+        label={`Distance: ${useMiles ? 'Imperial (mi)' : 'Metric (km)'}`}
       />
     </Box>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
@@ -31,19 +31,19 @@ const Type = styled(FormControl)(({ theme }) => ({
     },
 }));
 
-const StyledSelect = styled(Select)(({ theme }) => ({
+const StyledSelect = styled(Select)(() => ({
     color: 'inherit',
     minWidth: 120,
 }));
 
-const TypeComponent = ({ setState, state }) => {
+const TypeFilter = ({ value, onChange }) => {
     const handleChange = (e) => {
-        const value = e.target.value;
-        if (value[value.length - 1] === 'All') {
-            setState(['All']);
+        const val = e.target.value;
+        if (val[val.length - 1] === 'All') {
+            onChange(['All']);
         } else {
-            const filtered = value.filter(v => v !== 'All');
-            setState(filtered.length === 0 ? ['All'] : filtered);
+            const filtered = val.filter(v => v !== 'All');
+            onChange(filtered.length === 0 ? ['All'] : filtered);
         }
     };
 
@@ -53,7 +53,7 @@ const TypeComponent = ({ setState, state }) => {
                 multiple
                 disableUnderline
                 sx={{ '.MuiSelect-icon': { color: 'white' } }}
-                value={state}
+                value={value}
                 onChange={handleChange}
                 renderValue={(selected) => {
                     if (selected.includes('All')) return 'All Types';
@@ -61,12 +61,12 @@ const TypeComponent = ({ setState, state }) => {
                 }}
             >
                 <MenuItem value="All">
-                    <Checkbox checked={state.includes('All')} />
+                    <Checkbox checked={value.includes('All')} />
                     <ListItemText primary="All" />
                 </MenuItem>
                 {TYPES.map((type) => (
                     <MenuItem key={type.value} value={type.value}>
-                        <Checkbox checked={state.includes(type.value)} />
+                        <Checkbox checked={value.includes(type.value)} />
                         <ListItemText primary={type.label} />
                     </MenuItem>
                 ))}
@@ -75,11 +75,4 @@ const TypeComponent = ({ setState, state }) => {
     );
 };
 
-export default function useType(defaultState) {
-    const [state, setState] = useState(defaultState);
-    return [
-        state,
-        <TypeComponent state={state} setState={setState} />,
-        setState
-    ];
-}
+export default TypeFilter;
