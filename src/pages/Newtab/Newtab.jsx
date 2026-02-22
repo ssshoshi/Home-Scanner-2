@@ -8,6 +8,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Homes from "./Homes";
 import SearchForm from "./SearchForm";
 import TypeFilter from "./Type"
+import { clearCardCache } from "./Card"
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -63,7 +64,7 @@ export default function Album() {
     fetchZillow();
     const storageListener = (e) => {
       if (e.captcha) {
-        handleClickOpen()
+        setOpen(true);
       }
       if (e.data) {
         setLoading(true);
@@ -107,6 +108,7 @@ export default function Album() {
           }
         })
         response.data.sort((a, b) => a.distance - b.distance);
+        clearCardCache();
         setDistanceUnit(unit);
         allHomes.current = response.data;
         setHomes(response.data)
@@ -116,21 +118,12 @@ export default function Album() {
     }
   }, [])
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-
   return (
 
     <ThemeProvider theme={theme}>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={() => setOpen(false)}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -143,8 +136,8 @@ export default function Album() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Dismiss</Button>
-          <Button href="https://www.zillow.com" target="_blank" onClick={handleClose} autoFocus>
+          <Button onClick={() => setOpen(false)}>Dismiss</Button>
+          <Button href="https://www.zillow.com" target="_blank" onClick={() => setOpen(false)} autoFocus>
             Open Zillow
           </Button>
         </DialogActions>

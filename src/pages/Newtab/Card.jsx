@@ -37,6 +37,7 @@ const formatDistance = (distance, unit) => {
 
 // Session cache: survives re-renders and filter changes within the same panel session
 const cardCache = new Map();
+export function clearCardCache() { cardCache.clear(); }
 
 // Batch persistent cache writes — multiple calls within 100ms merge into one storage write
 const MAX_CACHE_ENTRIES = 500;
@@ -93,14 +94,13 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
     const res = await fetch(url);
     if (!res.ok) return;
     const data = await res.json();
-    for (let i of (data.autocomplete || [])) {
-      if (i.area_type === "address") {
-        setRealtorLink(i.mpr_id);
-        home.realtorLink = i.mpr_id;
-        const cached = cardCache.get(home.zpid) || {};
-        cardCache.set(home.zpid, { ...cached, realtorLink: i.mpr_id });
-        updateHomeDataCache(home.zpid, { realtorLink: i.mpr_id });
-      }
+    const match = (data.autocomplete || []).find(i => i.area_type === "address");
+    if (match) {
+      setRealtorLink(match.mpr_id);
+      home.realtorLink = match.mpr_id;
+      const cached = cardCache.get(home.zpid) || {};
+      cardCache.set(home.zpid, { ...cached, realtorLink: match.mpr_id });
+      updateHomeDataCache(home.zpid, { realtorLink: match.mpr_id });
     }
   }
 
@@ -131,7 +131,14 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
       updateHomeDataCache(home.zpid, { streetviewUrl });
     } else if (home.streetViewMetadataURL) {
       const res2 = await fetch(home.streetViewMetadataURL);
-      if (!res2.ok) return;
+      if (!res2.ok) {
+        const streetviewUrl = home.satImage;
+        setStreetviewImage(streetviewUrl);
+        const cached = cardCache.get(home.zpid) || {};
+        cardCache.set(home.zpid, { ...cached, streetviewUrl });
+        updateHomeDataCache(home.zpid, { streetviewUrl });
+        return;
+      }
       const data2 = await res2.json();
       if (data2.status === "OK") {
         home.pano_id = data2.pano_id;
@@ -148,10 +155,6 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
         updateHomeDataCache(home.zpid, { streetviewUrl });
       }
     }
-  }
-
-  const sendAddress = (address) => {
-    chrome.storage.local.set({ address })
   }
 
   useEffect(() => {
@@ -269,7 +272,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
               sx={{ backgroundColor: '#1976d2', minWidth: '0px', ml: 1, alignContent: 'flex-start' }}
               variant="contained"
               size="small"
-              onClick={() => { sendAddress(home.address); }}
+              onClick={() => chrome.storage.local.set({ address: home.address })}
             >
               <FmdGoodIcon style={{ color: '#ea4335' }} />
             </Button>

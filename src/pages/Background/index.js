@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         : (await chrome.tabs.query({ active: true, currentWindow: true }))[0]?.id;
       if (tabId) await chrome.sidePanel.open({ tabId });
     }
-  })();
+  })().catch(console.error);
 
   if (request.type === 'fetchCarousel') {
     const zpid = request.zpid;
