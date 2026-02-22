@@ -1,25 +1,28 @@
 /* global chrome */
 
 function insertTextAndClickButton(text) {
-    var searchBoxInput = document.getElementById("searchboxinput");
-    var searchButton = document.getElementById("searchbox-searchbutton");
-    searchBoxInput.value = text;
-    searchButton.click();
+    const input = document.querySelector('input[name="q"]');
+    if (!input) return;
+    input.focus();
+    input.value = text;
+    // Dispatch input event so Google Maps' jsaction handlers detect the new value
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    // Submit via Enter keydown — Maps listens for this via jsaction keydown handler
+    input.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true
+    }));
+    // Fallback: submit the form directly
+    const form = input.closest('form');
+    if (form) form.dispatchEvent(new Event('submit', { bubbles: true }));
 }
 
 if (window.location.hostname === "www.google.com") {
 
-
     chrome.storage.onChanged.addListener((e) => {
-        console.log(e)
-        if (e.address || e.beenClicked) {
+        if (e.address) {
             chrome.storage.local.get(["address"], response => {
                 insertTextAndClickButton(response.address)
             })
-        }
-        if (e.beenClicked) {
-            var searchButton = document.getElementById("searchbox-searchbutton");
-            searchButton.click();
         }
         if (e.coords) {
             chrome.storage.local.get(["coords"], response => {
