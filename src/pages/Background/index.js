@@ -1,11 +1,6 @@
 console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
-let data = []
-let lat;
-let long;
-
-
 // open the side panel by clicking on the action toolbar icon
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
@@ -16,8 +11,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   // The callback for runtime.onMessage must return falsy if we're not sending a response
   (async () => {
     if (request.type === 'open_side_panel') {
-      // This will open a tab-specific side panel only on the current tab.
-      await chrome.sidePanel.open({ tabId: sender.tab.id });
+      // sender.tab is undefined when called from popup context
+      const tabId = sender.tab
+        ? sender.tab.id
+        : (await chrome.tabs.query({ active: true, currentWindow: true }))[0]?.id;
+      if (tabId) await chrome.sidePanel.open({ tabId });
     }
   })();
 
@@ -38,8 +36,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
   if (request.message === "verified") {
     console.log(request.lat)
-    lat = parseFloat(request.lat)
-    long = parseFloat(request.long)
+    const lat = parseFloat(request.lat)
+    const long = parseFloat(request.long)
 
 
     // convert input coordinates to map boundary coordinates for Zillow url params
@@ -88,8 +86,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
 
     fetchData().then(zillowData => {
-      data = zillowData.cat1.searchResults.mapResults
+      const data = zillowData.cat1.searchResults.mapResults
       chrome.storage.local.set({ data: data, lat: lat, long: long, source: "google" })
+    }).catch(err => {
+      console.error('Zillow fetch failed:', err)
+      chrome.storage.local.set({ data: [], lat: lat, long: long, source: "google" })
     })
     return true;
   }

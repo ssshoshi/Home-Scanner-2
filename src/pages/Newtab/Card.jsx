@@ -1,5 +1,5 @@
 /* global chrome */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -117,16 +117,14 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
     chrome.storage.local.set({ beenClicked: btnClicked, address: address })
   }
 
-  chrome.storage.local.get('savedHomes', function (result) {
-    var isAlreadySaved = result.savedHomes.some(function (savedHome) {
-      return savedHome.zpid === home.zpid
+  useEffect(() => {
+    chrome.storage.local.get('savedHomes', function (result) {
+      var isAlreadySaved = result.savedHomes.some(function (savedHome) {
+        return savedHome.zpid === home.zpid
+      });
+      setHomeSaved(isAlreadySaved);
     });
-    if (isAlreadySaved) {
-      setHomeSaved(true)
-    } else {
-      setHomeSaved(false)
-    }
-  })
+  }, [home.zpid]);
 
 
   if (clicked === true) {

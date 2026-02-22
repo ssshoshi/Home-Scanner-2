@@ -32,7 +32,7 @@ const inputIsCoords = (latLong) => {
 
     if (verifyCoords(lat, long)) {
       chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long }, () => {
-
+        chrome.runtime.sendMessage({ type: 'open_side_panel' });
       });
     } else {
       document.querySelector("#error").textContent = "Input must be coordinates e.g. 47.595152, -122.331639"

@@ -83,7 +83,7 @@ export default function Album() {
 
   useEffect(() => {
     fetchZillow();
-    chrome.storage.onChanged.addListener((e) => {
+    const storageListener = (e) => {
       if (e.captcha) {
         handleClickOpen()
       }
@@ -101,8 +101,11 @@ export default function Album() {
       if (e.savedHomes) {
         setSavedHomes(e.savedHomes.newValue)
       }
-    })
+    };
+    chrome.storage.onChanged.addListener(storageListener);
 
+
+    return () => chrome.storage.onChanged.removeListener(storageListener);
 
     async function fetchZillow() {
       chrome.storage.local.get(["data", "lat", "long", "distanceUnit"], response => {
