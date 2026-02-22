@@ -44,17 +44,13 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
   const theme = useTheme();
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
   const addrStreetview = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${encodeURIComponent(home.address)}&size=800x600&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ`;
-  const [realtorLink, setRealtorLink] = useState([])
-  const [realtorImage, setRealtorImage] = useState("")
+  const [realtorLink, setRealtorLink] = useState("")
   const [carouselImages, setCarouselImages] = useState([])
-  const [carouselImagesLength, setCarouselImagesLength] = useState("")
-  const [carouselImage, setCarouselImage] = useState("")
   const [streetviewImage, setStreetviewImage] = useState("")
   const [clicked, setClicked] = useState(false)
   const [btnClicked, setBtnClicked] = useState(false)
   const [homeSaved, setHomeSaved] = useState(false)
   const [activeStep, setActiveStep] = useState(0);
-  let image
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) =>
@@ -75,7 +71,6 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
       if (i.area_type === "address") {
         setRealtorLink(i.mpr_id);
         home.realtorLink = i.mpr_id;
-        let realtorURL = `https://www.realtor.com/realestateandhomes-detail/M${i.mpr_id}`;
       }
     }
   }
@@ -84,8 +79,6 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
     chrome.runtime.sendMessage({ type: 'fetchCarousel', zpid: home.zpid }, (response) => {
       if (response && response.data && response.data.property && response.data.property.photos) {
         const photos = response.data.property.photos;
-        home.images = response;
-        setCarouselImage(photos[0].mixedSources.webp[0].url);
         setCarouselImages(photos);
       }
     });
@@ -95,7 +88,6 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
 
     const response = await axios.get(addrStreetview)
     if (response.data.status === "OK") {
-      console.log(response.data.status)
       home.pano_id = response.data.pano_id
       setStreetviewImage(`https://maps.googleapis.com/maps/api/streetview?location=${encodeURIComponent(
         home.address
@@ -131,16 +123,13 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
     });
   }, [home.zpid]);
 
-
-  if (clicked === true) {
-    if (streetviewImage) {
-      image = streetviewImage
-    } else {
-      setClicked(!clicked)
+  useEffect(() => {
+    if (clicked && !streetviewImage) {
+      setClicked(false);
     }
-  } else {
-    image = streetviewImage
-  }
+  }, [clicked, streetviewImage]);
+
+  const image = streetviewImage;
 
 
 
@@ -158,7 +147,7 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
         sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
         <div style={{ position: "relative" }}>
-          {carouselImages.length > 1 ?
+          {carouselImages.length >= 1 ?
             (
               <div >
                 <MobileStepper style={{ position: 'absolute', bottom: 0, padding: '0px', width: '100%' }}
@@ -256,34 +245,20 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
                 size="small"
                 onClick={() => {
                   chrome.storage.local.get({ savedHomes: [] }, function (result) {
-                    // the input argument is ALWAYS an object containing the queried keys
-                    // so we select the key we need
-                    console.log(home.zpid)
-
-                    // Check if home.zipid is already saved in savedHomes
-                    var isAlreadySaved = result.savedHomes.some(function (savedHome) {
+                    const isAlreadySaved = result.savedHomes.some(function (savedHome) {
                       return savedHome.zpid === home.zpid;
                     });
 
-                    // If home.zipid is not already saved, add it to savedHomes
                     if (!isAlreadySaved) {
                       result.savedHomes.push(home);
-                      setHomeSaved(true)
-                    } else if (isAlreadySaved) {
-                      const index = result.savedHomes.findIndex(item => item.zpid === home.zpid)
-                      result.savedHomes.splice(index, 1)
-                      setHomeSaved(false)
+                      setHomeSaved(true);
+                    } else {
+                      const index = result.savedHomes.findIndex(item => item.zpid === home.zpid);
+                      result.savedHomes.splice(index, 1);
+                      setHomeSaved(false);
                     }
 
-                    // set the new array value to the same key
-                    chrome.storage.local.set({ savedHomes: result.savedHomes }, function (result) {
-                      // you can use strings instead of objects
-                      // if you don't  want to define default values
-                      savedHomes = result.savedHomes
-                      chrome.storage.local.get('savedHomes', function (result) {
-                        savedHomes = result.savedHomes
-                      });
-                    });
+                    chrome.storage.local.set({ savedHomes: result.savedHomes });
                   });
                 }}
               >

@@ -35,7 +35,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
 
   if (request.message === "verified") {
-    console.log(request.lat)
     const lat = parseFloat(request.lat)
     const long = parseFloat(request.long)
 

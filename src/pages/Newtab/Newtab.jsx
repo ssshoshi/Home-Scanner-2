@@ -115,7 +115,7 @@ export default function Album() {
           return;
         }
         window.scrollTo(0, 0)
-        response.data.map((home) => {
+        response.data.forEach((home) => {
           if (home.zpid || home.buildingId) {
             home.address = home.address === undefined ? "--" : home.address !== "--" ? home.address : home.detailUrl.split("/")[2].replace(/-/g, " "),
               home.homeType = home.buildingId ? "APARTMENT" : home.hdpData.homeInfo.homeType,
