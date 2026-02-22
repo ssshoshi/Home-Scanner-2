@@ -124,7 +124,7 @@ export default function Album() {
               home.zillowImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? null : home.imgSrc,
               home.satImage = !home.imgSrc ? null : home.imgSrc.includes("staticmap") ? home.imgSrc : null,
               home.distance = unit === 'mi'
-                ? Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude) * 10) / 10
+                ? Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude) * 10000) / 10000
                 : Math.round(getDistance(response.lat, response.long, home.latLong.latitude, home.latLong.longitude, "K") * 1000)
           }
         })

@@ -25,6 +25,16 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 
 
+const formatDistance = (distance, unit) => {
+  if (unit === 'mi') {
+    if (distance < 0.1) return { value: Math.round(distance * 5280), unit: 'ft' };
+    return { value: distance.toFixed(1), unit: 'mi' };
+  } else {
+    if (distance >= 100) return { value: (distance / 1000).toFixed(1), unit: 'km' };
+    return { value: distance, unit: 'm' };
+  }
+};
+
 const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => {
   const theme = useTheme();
   const url = "https://parser-external.geo.moveaws.com/suggest?client_id=rdc-x&input=" + home.address
@@ -316,7 +326,7 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
             </Grid>
             <Grid item xs={6} justifyContent="flex-start">
               <Typography variant="body1">
-                <strong>{home.distance}</strong>{distanceUnit} away
+                <strong>{formatDistance(home.distance, distanceUnit).value}</strong>{formatDistance(home.distance, distanceUnit).unit} away
               </Typography>
             </Grid>
 
