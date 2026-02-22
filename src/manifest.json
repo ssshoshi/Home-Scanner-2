@@ -31,8 +31,7 @@
         "*://*.homeaway.com/*",
         "*://*.vrbo.com/*",
         "*://*.google.com/maps*",
-        "*://*.google.com/maps/place/*",
-        "*://*.realtor.com/*"
+        "*://*.google.com/maps/place/*"
       ],
       "js": [
         "contentScript.bundle.js"
@@ -42,14 +41,6 @@
       ],
       "all_frames": false
     },
-    {
-      "matches": [
-        "*://*/newtab.html"
-      ],
-      "js": [
-        "newtab.bundle.js"
-      ]
-    }
   ],
   "devtools_page": "devtools.html",
   "web_accessible_resources": [

@@ -1,11 +1,4 @@
-import { printLine } from './modules/print';
-
-console.log('Content script works!');
-console.log('Must reload extension for modifications to take effect.');
-
-printLine("Using the 'printLine' function from the Print Module");
-let lat;
-let long;
+/* global chrome */
 
 function insertTextAndClickButton(text) {
     var searchBoxInput = document.getElementById("searchboxinput");
@@ -59,14 +52,6 @@ if (window.location.hostname === "www.google.com") {
 
         const nextIndex = maxIndex + 1;
 
-        // Only insert if Home Scanner menu doesn't already exist
-        // if (!document.querySelector("[data-index='" + nextIndex + "']")) {
-        //     menu.insertAdjacentHTML(
-        //         "beforeend",
-        //         ` <li aria-checked="false" data-index="${nextIndex}" role="menuitemradio" tabindex="0" jsaction="click: actionmenu.select; keydown: actionmenu.keydown;" jstcache="543" jsinstance="*9" class="fxNQSd" jsan="0.aria-checked,7.fxNQSd,0.data-index,0.role,0.tabindex,0.jsaction"><div jstcache="544" style="display:none"></div><div jstcache="545" style="display:none"></div><span jstcache="546" style="display:none"></span><div jstcache="547" class="twHv4e" jsan="7.twHv4e,t-nsjBiGFs4q0"><div jstcache="563" class="mLuXec" jsan="7.mLuXec">Home Scanner</div><div jstcache="564" style="display:none"></div></div></li>`
-        //     );
-        // }
-
         if (!menu.querySelector("[data-index='" + nextIndex + "']")) {
             menu.insertAdjacentHTML(
                 "beforeend",
@@ -74,10 +59,10 @@ if (window.location.hostname === "www.google.com") {
             );
 
             menu.querySelector("[data-index='" + nextIndex + "']").addEventListener('click', () => {
-                let preSplitCoord = menu.querySelector('[data-index="0"] .mLuXec').textContent
-                let coord = preSplitCoord.split(/,/)
-                lat = coord[0].trim();
-                long = coord[1].trim();
+                const preSplitCoord = menu.querySelector('[data-index="0"] .mLuXec').textContent;
+                const coord = preSplitCoord.split(/,/);
+                const lat = coord[0].trim();
+                const long = coord[1].trim();
                 chrome.runtime.sendMessage({ message: "verified", lat: lat, long: long, source: "google" });
                 chrome.runtime.sendMessage({ type: 'open_side_panel' });
                 sendCoords(preSplitCoord)

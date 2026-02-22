@@ -54,18 +54,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     };
 
 
-    // let urlParams = `{"pagination":{},"mapBounds":${getMapBoundaries(
-    //   parseFloat(request.lat),
-    //   parseFloat(request.long)
-    // )},"isMapVisible":true,"filterState":{"isAllHomes":{"value":true}},"mapZoom":18}&wants={"cat1":["listResults","mapResults"]}`;
-
-    // var url = 'https://www.zillow.com/async-create-search-page-state?searchQueryState=' + urlParams;
-
-    // let body = `{"pagination":{},"mapBounds":${getMapBoundaries(
-    //   parseFloat(request.lat),
-    //   parseFloat(request.long)
-    // )},"isMapVisible":true,"filterState":{"isAllHomes":{"value":true}},"mapZoom":18}&wants={"cat1":["listResults","mapResults"]}`;
-
     let body = `{"searchQueryState":{"pagination":{},"isMapVisible":true,"mapBounds":${getMapBoundaries(
       parseFloat(request.lat),
       parseFloat(request.long)

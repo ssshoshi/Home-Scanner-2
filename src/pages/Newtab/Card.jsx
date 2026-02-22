@@ -23,6 +23,11 @@ import { useTheme } from '@mui/material/styles';
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
+const StyledCard = styled(Card)(() => ({
+  transition: "transform 0.2s ease",
+  "&:hover": { boxShadow: "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px;" },
+}))
+
 
 
 const formatDistance = (distance, unit) => {
@@ -138,11 +143,6 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition, distanceUnit }) => 
   }
 
 
-
-  const StyledCard = styled(Card)(() => ({
-    transition: "transform 0.2s ease",
-    "&:hover": { boxShadow: "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px;" },
-  }))
 
   return (
     <LazyLoadComponent scrollPosition={scrollPosition} threshold={1000} width={600} height={600}
