@@ -22,7 +22,28 @@ const SkeletonCard = () => (
 
 const SEARCH_PARAM = ["address"];
 
-const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearched, distanceUnit }) => {
+const parsePrice = (label) => {
+    if (!label || label === '--') return Infinity;
+    const s = label.replace(/[$,\s]/g, '').toUpperCase();
+    if (s.endsWith('M')) return parseFloat(s) * 1_000_000;
+    if (s.endsWith('K')) return parseFloat(s) * 1_000;
+    return parseFloat(s) || Infinity;
+};
+
+const parseBeds = (beds) => (beds === '--' || beds === undefined ? -1 : parseFloat(beds) || -1);
+
+const comparators = {
+    distance: (a, b) => a.distance - b.distance,
+    price: (a, b) => parsePrice(a.price) - parsePrice(b.price),
+    beds: (a, b) => parseBeds(b.beds) - parseBeds(a.beds),
+    area: (a, b) => {
+        const aArea = a.area === '--' ? -1 : parseFloat(a.area) || -1;
+        const bArea = b.area === '--' ? -1 : parseFloat(b.area) || -1;
+        return bArea - aArea;
+    },
+};
+
+const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearched, distanceUnit, sortValue, minBeds, maxPrice }) => {
     function search(homes) {
         const query = formValue.toLowerCase();
         return homes.filter((home) =>
@@ -37,10 +58,21 @@ const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearch
         });
     }
 
-    const filtered = search(type(homes));
+    function filterBeds(homes) {
+        if (minBeds === 0) return homes;
+        return homes.filter((home) => parseBeds(home.beds) >= minBeds);
+    }
+
+    function filterPrice(homes) {
+        if (maxPrice === -1) return homes;
+        return homes.filter((home) => parsePrice(home.price) <= maxPrice);
+    }
+
+    const filtered = search(type(filterBeds(filterPrice(homes))));
+    const sorted = [...filtered].sort(comparators[sortValue] || comparators.distance);
 
     return (
-        <Container sx={{ py: 8 }} maxWidth="xl">
+        <Container sx={{ pt: 15, pb: 8 }} maxWidth="xl">
             <Grid container spacing={4} sx={{ mt: 0 }}>
                 {loading ? (
                     Array.from({ length: 6 }).map((_, i) => (
@@ -49,14 +81,14 @@ const Homes = ({ homes, typeValue, formValue, scrollPosition, loading, hasSearch
                         </Grid>
                     ))
                 ) : (
-                    filtered.map((home, index) => (
+                    sorted.map((home, index) => (
                         <Grid item key={home.zpid || home.buildingId || index} xs={12} sm={6} md={4}>
                             <HomeCard scrollPosition={scrollPosition} home={home} distanceUnit={distanceUnit}></HomeCard>
                         </Grid>
                     ))
                 )}
             </Grid>
-            {!loading && hasSearched && filtered.length === 0 && (
+            {!loading && hasSearched && sorted.length === 0 && (
                 <Typography variant="body1" sx={{ textAlign: 'center', mt: 8, color: 'text.secondary' }}>
                     No results found for this location.
                 </Typography>

@@ -20,8 +20,8 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 
 
 const StyledCard = styled(Card)(() => ({
-  transition: "transform 0.2s ease",
-  "&:hover": { boxShadow: "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px;" },
+  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+  "&:hover": { boxShadow: "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px" },
 }))
 
 const formatDistance = (distance, unit) => {
@@ -334,7 +334,7 @@ const HomeCard = ({ home, scrollPosition, distanceUnit }) => {
             </Grid>
             <Grid item xs={6} justifyContent="flex-start">
               <Typography variant="body1">
-                <strong>{home.price}</strong> Assessed
+                <strong>{home.price}</strong> Listed
               </Typography>
             </Grid>
             <Grid item xs={6} justifyContent="flex-end">

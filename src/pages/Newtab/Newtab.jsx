@@ -19,6 +19,9 @@ import OpenInNew from '@mui/icons-material/OpenInNew';
 import MapIcon from '@mui/icons-material/Map';
 import Tooltip from '@mui/material/Tooltip'
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Chip from '@mui/material/Chip';
 
 const getDistance = (lat1, lon1, lat2, lon2, unit) => {
   if (lat1 == lat2 && lon1 == lon2) {
@@ -46,6 +49,16 @@ const getDistance = (lat1, lon1, lat2, lon2, unit) => {
 
 const theme = createTheme();
 
+const filterSelectSx = {
+  color: 'white',
+  '.MuiSelect-icon': { color: 'white' },
+  backgroundColor: 'rgba(255,255,255,0.15)',
+  borderRadius: 1,
+  px: 1,
+  mx: 0.5,
+  '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' },
+};
+
 
 export default function Album() {
   const [formValue, setFormValue] = useState('');
@@ -56,6 +69,10 @@ export default function Album() {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [distanceUnit, setDistanceUnit] = useState('m');
+  const [sortValue, setSortValue] = useState('distance');
+  const [minBeds, setMinBeds] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(-1);
+  const [isSavedView, setIsSavedView] = useState(false);
 
 
   useEffect(() => {
@@ -112,6 +129,7 @@ export default function Album() {
         setHomes(response.data)
         setHasSearched(true);
         setLoading(false);
+        setIsSavedView(false);
       })
     }
   }, [])
@@ -143,20 +161,28 @@ export default function Album() {
       <CssBaseline />
       <AppBar position="fixed" >
         <Toolbar>
-          <Button onClick={() => setHomes(allHomes.current)}>
+          <Button onClick={() => { setHomes(allHomes.current); setIsSavedView(false); }}>
             <MapsHomeWorkIcon sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", color: "white" }} />
           </Button>
           <Typography variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
             Home Scanner
           </Typography>
+          {isSavedView && (
+            <Chip
+              label="Saved"
+              size="small"
+              variant="outlined"
+              onDelete={() => { setHomes(allHomes.current); setIsSavedView(false); }}
+              sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)', mr: 1 }}
+            />
+          )}
           <Tooltip title="Saved">
             <Button onClick={() => {
-              chrome.storage.local.get({ savedHomes: [] }, function (result) {
+              chrome.storage.local.get({ savedHomes: [] }, (result) => {
                 setHomes(result.savedHomes);
+                setIsSavedView(true);
               });
-
-            }}
-            >
+            }}>
               <BookmarksIcon sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></BookmarksIcon>
             </Button>
           </Tooltip>
@@ -170,12 +196,52 @@ export default function Album() {
               <OpenInNew sx={{ mr: 2, "&:hover": { transform: "scale3d(1.3, 1.3, 1)" }, transition: "transform 0.15s ease-in-out", cursor: "pointer", color: "white" }}></OpenInNew>
             </Button>
           </Tooltip>
+        </Toolbar>
+        <Toolbar variant="dense" sx={{ pb: 0.5, gap: 0.5 }}>
           <TypeFilter value={typeValue} onChange={setTypeValue} />
+          <Select
+            value={sortValue}
+            onChange={(e) => setSortValue(e.target.value)}
+            variant="standard"
+            disableUnderline
+            sx={{ ...filterSelectSx, minWidth: 100 }}
+          >
+            <MenuItem value="distance">Distance</MenuItem>
+            <MenuItem value="price">Price ↑</MenuItem>
+            <MenuItem value="beds">Beds ↓</MenuItem>
+            <MenuItem value="area">Area ↓</MenuItem>
+          </Select>
+          <Select
+            value={minBeds}
+            onChange={(e) => setMinBeds(e.target.value)}
+            variant="standard"
+            disableUnderline
+            sx={{ ...filterSelectSx, minWidth: 85 }}
+          >
+            <MenuItem value={0}>Any beds</MenuItem>
+            <MenuItem value={1}>1+ bed</MenuItem>
+            <MenuItem value={2}>2+ beds</MenuItem>
+            <MenuItem value={3}>3+ beds</MenuItem>
+            <MenuItem value={4}>4+ beds</MenuItem>
+          </Select>
+          <Select
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            variant="standard"
+            disableUnderline
+            sx={{ ...filterSelectSx, minWidth: 110 }}
+          >
+            <MenuItem value={-1}>Any price</MenuItem>
+            <MenuItem value={200000}>{'<$200K'}</MenuItem>
+            <MenuItem value={500000}>{'<$500K'}</MenuItem>
+            <MenuItem value={750000}>{'<$750K'}</MenuItem>
+            <MenuItem value={1000000}>{'<$1M'}</MenuItem>
+          </Select>
           <SearchForm value={formValue} onChange={setFormValue} />
         </Toolbar>
       </AppBar>
       <main>
-        <Homes typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit}></Homes>
+        <Homes typeValue={typeValue} formValue={formValue} homes={homes} loading={loading} hasSearched={hasSearched} distanceUnit={distanceUnit} sortValue={sortValue} minBeds={minBeds} maxPrice={maxPrice}></Homes>
       </main>
     </ThemeProvider >
 
