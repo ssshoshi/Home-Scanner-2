@@ -1,5 +1,3 @@
-import axios from 'axios'
-
 console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
@@ -22,6 +20,21 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       await chrome.sidePanel.open({ tabId: sender.tab.id });
     }
   })();
+
+  if (request.type === 'fetchCarousel') {
+    const zpid = request.zpid;
+    const carouselUrl = `https://www.zillow.com/zg-graph?zpid=${zpid}&operationName=getCarouselPhotos`;
+    const body = `{"operationName":"getCarouselPhotos","variables":{"zpid":"${zpid}","isBuilding":false,"isCdpResult":false},"query":"query getCarouselPhotos($zpid: ID, $lotId: ID, $isBuilding: Boolean!, $plid: ID, $isCdpResult: Boolean!) {\\n  property(zpid: $zpid) @skip(if: $isBuilding) {\\n    photos {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n  building(lotId: $lotId) @include(if: $isBuilding) {\\n    photos {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n  ncCommunity(plid: $plid) @include(if: $isCdpResult) {\\n    images {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n}\\n"}`;
+    fetch(carouselUrl, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: body
+    })
+      .then(res => res.json())
+      .then(data => sendResponse(data))
+      .catch(err => sendResponse({ error: err.message }));
+    return true;
+  }
 
   if (request.message === "verified") {
     console.log(request.lat)
@@ -72,22 +85,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       })
       const zillowData = await res.json()
       return zillowData
-    }
-
-    async function fetchCarousel(data) {
-      data.forEach((home) => {
-        let res = fetch(`https://www.zillow.com/zg-graph?zpid=${home.zpid}&operationName=getCarouselPhotos`, {
-          "headers": {
-            "content-type": "application/json",
-          },
-          "method": "POST",
-          "body": `{\"operationName\":\"getCarouselPhotos\",\"variables\":{\"zpid\":\"${home.zpid}\",\"isBuilding\":false,\"isCdpResult\":false},\"query\":\"query getCarouselPhotos($zpid: ID, $lotId: ID, $isBuilding: Boolean!, $plid: ID, $isCdpResult: Boolean!) {\\n  property(zpid: $zpid) @skip(if: $isBuilding) {\\n    photos {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n  building(lotId: $lotId) @include(if: $isBuilding) {\\n    photos {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n  ncCommunity(plid: $plid) @include(if: $isCdpResult) {\\n    images {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n}\\n\"}`
-
-        })
-        home.images = res.json()
-
-      })
-      return data
     }
 
     fetchData().then(zillowData => {

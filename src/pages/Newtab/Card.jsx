@@ -65,20 +65,15 @@ const HomeCard = ({ home, homes, savedHomes, scrollPosition }) => {
     }
   }
 
-  async function fetchCarousel() {
-    let carouselUrl = `https://www.zillow.com/zg-graph?zpid=${home.zpid}&operationName=getCarouselPhotos`
-    let config = {
-      method: 'post',
-      url: carouselUrl,
-      headers: {
-        "content-type": "application/json",
-      },
-      data: `{\"operationName\":\"getCarouselPhotos\",\"variables\":{\"zpid\":\"${home.zpid}\",\"isBuilding\":false,\"isCdpResult\":false},\"query\":\"query getCarouselPhotos($zpid: ID, $lotId: ID, $isBuilding: Boolean!, $plid: ID, $isCdpResult: Boolean!) {\\n  property(zpid: $zpid) @skip(if: $isBuilding) {\\n    photos {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n  building(lotId: $lotId) @include(if: $isBuilding) {\\n    photos {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n  ncCommunity(plid: $plid) @include(if: $isCdpResult) {\\n    images {\\n      mixedSources(aspectRatio: FourThirds, minWidth: 355, maxWidth: 768) {\\n        webp {\\n          url\\n        }\\n      }\\n    }\\n  }\\n}\\n\"}`
-    }
-    const response = await axios(carouselUrl, config)
-    home.images = response.data
-    setCarouselImage(response.data.data.property.photos[0].mixedSources.webp[0].url)
-    setCarouselImages(response.data.data.property.photos)
+  function fetchCarousel() {
+    chrome.runtime.sendMessage({ type: 'fetchCarousel', zpid: home.zpid }, (response) => {
+      if (response && response.data && response.data.property && response.data.property.photos) {
+        const photos = response.data.property.photos;
+        home.images = response;
+        setCarouselImage(photos[0].mixedSources.webp[0].url);
+        setCarouselImages(photos);
+      }
+    });
   }
 
   async function fetchStreetview() {

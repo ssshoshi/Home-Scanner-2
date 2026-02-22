@@ -40,7 +40,7 @@
       "css": [
         "content.styles.css"
       ],
-      "all_frames": true
+      "all_frames": false
     },
     {
       "matches": [
